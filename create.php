@@ -7,6 +7,7 @@ $firstName = $email = $lastName = $pfPicture = $password = $cPassword = '';
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $firstName = $_POST['firstName'];
   $email = $_POST['email'];
+  $pfPicture = $_FILES['pfPicture'];
   $lastName = $_POST['lastName'];
   $password = $_POST['password'];
   $cPassword = $_POST['cPassword'];
@@ -26,16 +27,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $emailError = "Invalid email format.";
   }
 
+
   // Validate profile picture
   if ($_FILES['pfPicture']['error'] === UPLOAD_ERR_OK) {
-    $allowedTypes = array('image/jpeg', 'image/png');
-    $maxFileSize = 2 * 1024 * 1024; // 2MB
+    $uploadDir = "uploads/"; // Directory to store uploaded images
+    $uploadFile = $uploadDir . basename($_FILES['pfPicture']['name']);
 
-    $fileType = $_FILES['pfPicture']['type'];
-    $fileSize = $_FILES['pfPicture']['size'];
-
-
+    // Move the uploaded file to the specified directory
+    if (move_uploaded_file($_FILES['pfPicture']['tmp_name'], $uploadFile)) {
+      $pfPicture = $uploadFile;
+    }
+  } else {
+    $pfPictureError = "There's no profile picture.";
   }
+
   // Validate password
   if (strlen($password) < 12) {
     $passwordError = "Password must be at least 12 characters long.";
@@ -48,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
   // If there are no validation errors, proceed with the insert operation
   if (empty($firstNameError) && empty($emailError) && empty($lastNameError) && empty($pfPictureError) && empty($passwordError) && empty($cPasswordError)) {
-    $sql = "INSERT INTO `userInfo` (fName, email, lName, password, cPassword) VALUES ('$firstName', '$email', '$lastName', '$password', '$cPassword')";
+    $sql = "INSERT INTO `userInfo` (fName, email, lName, pfPicture, password, cPassword) VALUES ('$firstName', '$email', '$lastName','$pfPicture', '$password', '$cPassword')";
     $result = mysqli_query($conn, $sql);
     if ($result) {
       header('location: login.php');
@@ -116,9 +121,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <label for="formFile" class="form-label">Upload your picture</label>
                 <input class="form-control <?php if (!empty($pfPictureError))
                   echo 'is-invalid'; ?>" type="file" id="pfPicture" name="pfPicture">
-                <div class="invalid-feedback">
-                  <?php echo $pfPictureError; ?>
-                </div>
+                <?php if (!empty($pfPictureError)): ?>
+                  <div class="invalid-feedback">
+                    <?php echo $pfPictureError; ?>
+                  </div>
+                <?php endif; ?>
               </div>
               <div class="mb-3">
                 <label for="inputPassword5" class="form-label">Password</label>
