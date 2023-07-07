@@ -36,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
   }
-
   // Validate password
   if (strlen($password) < 12) {
     $passwordError = "Password must be at least 12 characters long.";
@@ -95,23 +94,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                   <?php echo $firstNameError; ?>
                 </div>
               </div>
-
-              <label for="lastName" class="form-label">Last name:</label>
-              <input type="text" class="form-control <?php if (!empty($lastNameError))
-                echo 'is-invalid'; ?>" id="lastName" name="lastName" placeholder="Rizal" required
-                value="<?php echo htmlspecialchars($lastName); ?>">
-              <div class="invalid-feedback">
-                <?php echo $lastNameError; ?>
+              <div class="mb-3">
+                <label for="lastName" class="form-label">Last name:</label>
+                <input type="text" class="form-control <?php if (!empty($lastNameError))
+                  echo 'is-invalid'; ?>" id="lastName" name="lastName" placeholder="Rizal" required
+                  value="<?php echo htmlspecialchars($lastName); ?>">
+                <div class="invalid-feedback">
+                  <?php echo $lastNameError; ?>
+                </div>
               </div>
-
-              <label for="email" class="form-label">Email address:</label>
-              <input type="email" class="form-control <?php if (!empty($emailError))
-                echo 'is-invalid'; ?>" id="email" name="email" placeholder="joserizal@gmail.com" required
-                value="<?php echo htmlspecialchars($email); ?>">
-              <div class="invalid-feedback">
-                <?php echo $emailError; ?>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email address:</label>
+                <input type="email" class="form-control <?php if (!empty($emailError))
+                  echo 'is-invalid'; ?>" id="email" name="email" placeholder="joserizal@gmail.com" required
+                  value="<?php echo htmlspecialchars($email); ?>">
+                <div class="invalid-feedback">
+                  <?php echo $emailError; ?>
+                </div>
               </div>
-
               <div class="mb-3">
                 <label for="formFile" class="form-label">Upload your picture</label>
                 <input class="form-control <?php if (!empty($pfPictureError))
@@ -120,22 +120,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                   <?php echo $pfPictureError; ?>
                 </div>
               </div>
-
-              <label for="inputPassword5" class="form-label">Password</label>
-              <input type="password" id="inputPassword" name="password" class="form-control <?php if (!empty($passwordError))
-                echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
-                value="<?php echo htmlspecialchars($password); ?>">
-              <div class="invalid-feedback">
-                <?php echo $passwordError; ?>
+              <div class="mb-3">
+                <label for="inputPassword5" class="form-label">Password</label>
+                <input type="password" id="inputPassword" name="password" class="form-control <?php if (!empty($passwordError))
+                  echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
+                  value="<?php echo htmlspecialchars($password); ?>">
+                <div class="invalid-feedback">
+                  <?php echo $passwordError; ?>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="cPassword" class="form-control <?php if (!empty($cPasswordError))
+                  echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
+                  value="<?php echo htmlspecialchars($cPassword); ?>">
+                <div class="invalid-feedback">
+                  <?php echo $cPasswordError; ?>
+                </div>
               </div>
 
-              <label for="confirmPassword" class="form-label">Confirm Password</label>
-              <input type="password" id="confirmPassword" name="cPassword" class="form-control <?php if (!empty($cPasswordError))
-                echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
-                value="<?php echo htmlspecialchars($cPassword); ?>">
-              <div class="invalid-feedback">
-                <?php echo $cPasswordError; ?>
-              </div>
 
               <div class="d-flex justify-content-end">
                 <button type="submit" name="submit" class="btn m-3 btn-outline-danger rounded-5">
@@ -143,10 +146,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </button>
               </div>
             </div>
+            <div class="ms-3 mb-3">
+              Aready have an account? Login
+              <a href="login.php">here</a>
+            </div>
           </form>
-
-          Aready have an account? Login
-          <a href="login.php">here</a>
         </div>
       </div>
     </div>
