@@ -2,73 +2,83 @@
 require 'components/retrieve.php';
 require 'components/layout.php';
 ?>
+<style>
+  .carouselBtn {
+    margin: 0 150px;
+  }
+</style>
 <title>RPABS</title>
 </head>
 
 <body class="bg-body-secondary">
-  <div class="container">
-  </div>
   <?php require 'components/navbar.php'; ?>
   <!-- carousel features -->
-  <div id="carouselExampleIndicators"
-    class="carousel slide carousel-fade carousel-dark bg-danger-subtle mt-3 mt-md-5 mx-4 mx-md-5">
-    <div class="carousel-indicators">
-      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active rounded-5"
-        aria-current="true" aria-label="Slide 1"></button>
-      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" class="rounded-5"
-        aria-label="Slide 2"></button>
-      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" class="rounded-5"
-        aria-label="Slide 3"></button>
+  <div class="container pt-3">
+    <div class="row">
+      <div class="col col-12 col-lg-2"></div>
+      <!-- start of the carousel -->
+      <div class="col col-12 col-lg-8">
+        <div id="carousel" class="carousel slide carousel-dark bg-danger-subtle rounded rounded-3 shadow"
+          data-bs-ride="carousel">
+          <!-- carousel indicators -->
+          <div class="d-block d-xl-none">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#carousel" data-bs-slide-to="0" class="active" aria-current="true"
+                aria-label="Slide 1"></button>
+              <button type="button" data-bs-target="#carousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              <button type="button" data-bs-target="#carousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+          </div>
+          <div class="carousel-inner ">
+            <div class="carousel-item active">
+              <img src="assets/pexels-thorsten-technoman-338504.jpg" class="imgC d-block  rounded rounded-3 w-100"
+                alt="...">
+              <div class="carousel-caption d-none d-md-block position-absolute top-0 end-0 text-end pe-3">
+                <h5>First slide label</h5>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque iusto accusantium dolorem dignissimos
+                  quo quisquam qui ullam possimus nulla porro?.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <img src="assets/pexels-thorsten-technoman-338504.jpg" class="imgC d-block  rounded rounded-3 w-100"
+                alt="...">
+              <div class="carousel-caption d-none d-md-block position-absolute top-0 end-0 text-end pe-3">
+                <h5>Second slide label</h5>
+                <p>Some representative placeholder content for the second slide.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <img src="assets/pexels-thorsten-technoman-338504.jpg" class="imgC d-block  rounded rounded-3 w-100"
+                alt="...">
+              <div class="carousel-caption d-none d-md-block  position-absolute top-0 end-0 text-end pe-3">
+                <h5>Third slide label</h5>
+                <p>Some representative placeholder content for the third slide.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- buttons for carousel -->
+        <button class="carouselBtn carousel-control-prev d-none d-xl-block" type="button" data-bs-target="#carousel"
+          data-bs-slide="prev">
+          <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="black" class="bi bi-caret-left"
+            viewBox="0 0 16 16">
+            <path
+              d="M10 12.796V3.204L4.519 8 10 12.796zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753z" />
+          </svg>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carouselBtn carousel-control-next  d-none d-xl-block" type="button" data-bs-target="#carousel"
+          data-bs-slide="next">
+          <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="black" class="bi bi-caret-right"
+            viewBox="0 0 16 16">
+            <path
+              d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z" />
+          </svg>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+      <div class="col col-4 col-lg-2"></div>
     </div>
-    <div class="carousel-inner d-flex justify-content-between ms-4 ps-3 pb-5 pt-3 pt-lg-3 ms-lg-5 ps-lg-5">
-      <div class="carousel-item active ms-3 me-5">
-        <div class="d-flex align-items-center">
-          <img src="assets/pexels-thorsten-technoman-338504.jpg" class="portrait-img" alt="features" />
-          <div class="pe-5 ps-3">
-            <h4>Lorem ipsum</h4>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptatum pariatur facilis consequuntur temporibus
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item ms-3 me-5">
-        <div class="d-flex align-items-center">
-          <img src="assets/pexels-thorsten-technoman-338504.jpg" class="portrait-img" alt="features" />
-          <div class="pe-5 ps-3">
-            <h4>Lorem ipsum</h4>
-            <p class="">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptatum pariatur facilis consequuntur temporibus
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item ms-3 me-5">
-        <div class="d-flex align-items-center">
-          <img src="assets/pexels-thorsten-technoman-338504.jpg" class="portrait-img" alt="features" />
-          <div class="pe-5 ps-3">
-            <h4>Lorem ipsum</h4>
-            <p class="">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptatum pariatur facilis consequuntur temporibus
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- button indicators -->
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
-      data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
-      data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
   </div>
   <hr />
   <!-- rooms -->
@@ -78,7 +88,8 @@ require 'components/layout.php';
       <div class="mb-3">
         <div class="d-lg-flex">
           <div class="pt-3 p-lg-3">
-            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img" style="width: 18rem" />
+            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img rounded rounded-3"
+              style="width: 18rem" />
           </div>
           <div class="pt-2 p-lg-3 mt-3 mt-lg-5">
             <h2>Room 1</h2>
@@ -93,8 +104,9 @@ require 'components/layout.php';
       <!-- room 2 -->
       <div class="mb-3">
         <div class="d-lg-flex flex-row-reverse">
-          <div class="pt-5">
-            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img" style="width: 18rem" />
+          <div class="pt-3">
+            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img rounded rounded-3"
+              style="width: 18rem" />
           </div>
           <div class="pt-2 p-lg-5 mt-3 mt-lg-5">
             <h2 class="text-lg-end">Room 2</h2>
@@ -110,7 +122,8 @@ require 'components/layout.php';
       <div class="mb-3">
         <div class="d-lg-flex">
           <div class="pt-3 p-lg-3">
-            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img" style="width: 18rem" />
+            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img rounded rounded-3"
+              style="width: 18rem" />
           </div>
           <div class="pt-2 p-lg-3 mt-3 mt-lg-5">
             <h2>Room 3</h2>
@@ -126,7 +139,7 @@ require 'components/layout.php';
   </section>
   <!-- adds on -->
   <section id="addson">
-    <div class="container-fluid bg-danger-subtle">
+    <div class="container-fluid bg-danger-subtle pt-3">
       <h1 class="text-center">Adds on</h1>
       <p class="text-center">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Non nulla

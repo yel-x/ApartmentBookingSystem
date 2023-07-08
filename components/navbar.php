@@ -21,12 +21,6 @@ if (isset($_GET['userId'])) {
 require 'components/layout.php';
 ?>
 <style>
-    .portrait-img {
-        height: 20rem;
-        width: 10rem;
-        object-fit: cover;
-    }
-
     .logIn {
         background: linear-gradient(315deg, #0049ff, #d25f72, #a71a31);
         background-size: 600% 600%;
@@ -49,7 +43,17 @@ require 'components/layout.php';
     }
 
     .addson::-webkit-scrollbar {
+
         background-color: transparent;
+    }
+
+
+
+    .addson::-webkit-scrollbar-thumb {
+        background-image: url("assets/arrows.png");
+        background-repeat: no-repeat;
+        background-size: contain;
+        cursor: pointer;
     }
 </style>
 </head>
@@ -57,21 +61,23 @@ require 'components/layout.php';
 <body>
     <!-- navlist and title -->
     <nav class="navbar bg-body-tertiary">
-        <div class="container-fluid justify-content-between">
-            <a class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample"
-                aria-controls="offcanvasExample">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offCanvas"
+                aria-controls="offCanvas">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list"
                     viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
                         d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
                 </svg>
             </a>
-            <span class="fw-bold flex justify-content-end">Rizal Park's Apartment Booking System</span>
+            <span class="fw-bold flex-grow-1 text-end d-none d-md-block">Rizal Park's Apartment Booking System</span>
+            <span class="fw-bold flex-grow-1 text-end d-block d-md-none">RPABS</span>
         </div>
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
-            aria-labelledby="offcanvasExampleLabel" data-bs-theme="dark">
+        <!-- start of offcanvas -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offCanvas" aria-labelledby="offCanvasLabel"
+            data-bs-theme="dark">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasExampleLabel">
+                <h5 class="offcanvas-title" id="offCanvaLabel">
                     <a href="index.php<?php echo $userId ? '?userId=' . $userId : ''; ?>"
                         class="text-decoration-none text-white">RPABS</a>
                 </h5>
