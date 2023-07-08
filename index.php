@@ -83,7 +83,7 @@ require 'components/layout.php';
   <hr />
   <!-- rooms -->
   <section id="rooms">
-    <div class="container-sm pt-3">
+    <div class="container-sm py-3">
       <!-- room 1 -->
       <div class="mb-3">
         <div class="d-lg-flex">

@@ -26,7 +26,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $emailError = "Invalid email format.";
   }
+  // Check if email already exists in the database
+  $existingEmailQuery = "SELECT COUNT(*) FROM `userInfo` WHERE email = '$email'";
+  $existingEmailResult = mysqli_query($conn, $existingEmailQuery);
+  $existingEmailCount = mysqli_fetch_row($existingEmailResult)[0];
 
+  if ($existingEmailCount > 0) {
+    $emailError = "Email already exists.";
+  }
 
   // Validate profile picture
   if ($_FILES['pfPicture']['error'] === UPLOAD_ERR_OK) {
@@ -69,18 +76,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <?php
 require 'components/layout.php';
 ?>
+<style>
+  .toggle-icon {
+    cursor: pointer;
+  }
+</style>
 <title>Register</title>
 </head>
 
-<body class="p-5 mt-3 mb-5">
-  <div class="container mt-5 d-flex flex-row-reverse justify-content-center align-items-center vh-100">
-    <div class="card mb-3 shadow-lg" style="width: 800px; height: auto">
+<body>
+  <div class="container py-4 py-lg-5 d-flex flex-row-reverse justify-content-center align-items-center h-100">
+    <div class="card shadow-lg" style="max-width: 50rem; height: auto">
       <div class="row g-0">
         <div class="col-md-4">
           <img src="assets/pexels-thorsten-technoman-338504.jpg"
-            class="img-fluid rounded object-fit-cover h-100 d-none d-md-block" />
+            class="img-fluid rounded-start object-fit-cover h-100 d-none d-md-block" />
         </div>
-        <div class="col-md-8">
+        <div class="col-12 col-md-8">
           <!-- form -->
           <form action="create.php" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
             <div class="card-body">
@@ -122,34 +134,48 @@ require 'components/layout.php';
                   </div>
                 <?php endif; ?>
               </div>
+              <!-- password field -->
               <div class="mb-3">
-                <label for="inputPassword5" class="form-label">Password</label>
-                <input type="password" id="inputPassword" name="password" class="form-control <?php if (!empty($passwordError))
-                  echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
-                  value="<?php echo htmlspecialchars($password); ?>">
-                <div class="invalid-feedback">
-                  <?php echo $passwordError; ?>
+                <label for="passwordInput" class="form-label">Password</label>
+                <div class="input-group">
+                  <input type="password" id="passwordInput" name="password" class="form-control <?php if (!empty($passwordError))
+                    echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
+                    value="<?php echo htmlspecialchars($password); ?>">
+                  <!-- close eye -->
+                  <span class="input-group-text rounded-end toggle-icon" id="togglePassword"
+                    onclick="togglePasswordVisibility()">
+                    <i id="toggleIcon" class="fas fa-eye-slash"></i>
+                  </span>
+                  <div class="invalid-feedback">
+                    <?php echo $passwordError; ?>
+                  </div>
                 </div>
               </div>
+              <!-- confirm password input -->
               <div class="mb-3">
                 <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="cPassword" class="form-control <?php if (!empty($cPasswordError))
-                  echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
-                  value="<?php echo htmlspecialchars($cPassword); ?>">
-                <div class="invalid-feedback">
-                  <?php echo $cPasswordError; ?>
+                <div class="input-group">
+                  <input type="password" id="confirmPassword" name="cPassword" class="form-control <?php if (!empty($cPasswordError))
+                    echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
+                    value="<?php echo htmlspecialchars($cPassword); ?>">
+                  <!-- open eye -->
+                  <span class="input-group-text rounded-end toggle-icon" id="togglePassword" onclick="toggleCPass()">
+                    <i id="toggleIconCPass" class="fas fa-eye-slash"></i>
+                  </span>
+                  <div class="invalid-feedback">
+                    <?php echo $cPasswordError; ?>
+                  </div>
+
                 </div>
               </div>
-
-
-              <div class="d-flex justify-content-end">
-                <button type="submit" name="submit" class="btn m-3 btn-outline-danger rounded-5">
+              <div class="d-flex justify-content-end align-items-center">
+                <button type=" submit" name="submit" class="btn m-3 btn-outline-danger rounded-5">
                   Submit
                 </button>
               </div>
             </div>
             <div class="ms-3 mb-3">
-              Aready have an account? Login
+              Already have an account? Login
               <a href="login.php">here</a>
             </div>
           </form>
@@ -158,3 +184,33 @@ require 'components/layout.php';
     </div>
   </div>
   </div>
+  <script>
+    function togglePasswordVisibility() {
+      var passwordInput = document.getElementById("passwordInput");
+      var toggleIcon = document.getElementById("toggleIcon");
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleIcon.classList.remove("fa-eye-slash");
+        toggleIcon.classList.add("fa-eye");
+      } else {
+        passwordInput.type = "password";
+        toggleIcon.classList.remove("fa-eye");
+        toggleIcon.classList.add("fa-eye-slash");
+      }
+    }
+    function toggleCPass() {
+      var passwordInput = document.getElementById("confirmPassword");
+      var toggleIcon = document.getElementById("toggleIconCPass");
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleIcon.classList.remove("fa-eye-slash");
+        toggleIcon.classList.add("fa-eye");
+      } else {
+        passwordInput.type = "password";
+        toggleIcon.classList.remove("fa-eye");
+        toggleIcon.classList.add("fa-eye-slash");
+      }
+    }
+  </script>

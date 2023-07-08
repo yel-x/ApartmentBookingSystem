@@ -1,5 +1,5 @@
 <?php
-require 'components/connect.php';
+require 'connect.php';
 // Initialize the $errors array
 $errors = array();
 
@@ -14,6 +14,8 @@ if (isset($_GET['userId'])) {
     if ($result->num_rows > 0) {
         // User data found
         $row = $result->fetch_assoc();
+
+        $userId = []; // Initialize as an empty array
 
         // Access the user data fields
         $fName = $row['fName'];

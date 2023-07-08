@@ -4,12 +4,14 @@ require 'components/layout.php';
 
 ?>
 
+<title>Profile Account</title>
+</head>
 
 <body>
   <?php require 'components/navbar.php'; ?>
-  <div class="container">
-    <div class="d-flex row justify-content-center">
-      <div class="col col-8 col-lg-7 px-3 d-flex flex-column align-items-center pt-5 text-center">
+  <div class="container-md">
+    <div class="row row-cols-1 row-cols-sm-2 d-flex justify-content-center align-items-center ">
+      <div class="col  d-flex flex-column align-items-center p-3 p-lg-5 text-center vh-25">
         <h1 class="pt-5">Welcome
           <?php echo $fName; ?>!
         </h1>
@@ -21,7 +23,7 @@ require 'components/layout.php';
           Leave us a Review!
         </button>
       </div>
-      <div class="col col-8 col-lg-5 d-flex flex-column align-items-center py-5">
+      <div class="col d-flex flex-column align-items-center py-5 vh-25">
         <form action="" method="POST" enctype="multipart/form-data">
           <img id="profilePicture" src="<?php echo $pfPicture; ?>" alt="" style="width: 15rem; height: 15rem"
             class="rounded-circle object-fit-cover border border-5 border-danger-subtle" onclick="selectImage()" />

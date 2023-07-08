@@ -48,17 +48,18 @@ require 'components/layout.php';
 <title>Log In</title>
 </head>
 
+
 <body>
-  <div class="container p-5 my-5 mt-lg-0 d-flex justify-content-center align-items-center vh-100">
-    <div class="card mb-3 shadow-lg" style="width: 30rem; height: auto">
+  <div class="container pt-4 pt-lg-0 d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg " style="max-width: 30rem; height: auto">
       <div class="row g-0">
         <div class="col-md-4">
-          <img src="assets/pexels-thorsten-technoman-338504.jpg" class="img-fluid rounded object-fit-cover h-100" />
+          <img src="assets/pexels-thorsten-technoman-338504.jpg"
+            class="img-fluid rounded-start object-fit-cover h-100 d-none d-md-block" />
         </div>
-        <div class="col-md-8">
+        <div class="col-12 col-md-8">
           <div class="card-body">
-            <h5 class="card-title text-center p-3">LOG IN</h5>
-            <!-- Display the error message if login failed -->
+            <h5 class="card-title text-center p-lg-3">LOG IN</h5>
             <?php if (!empty($loginError)): ?>
               <div class="alert alert-danger">
                 <?php echo $loginError; ?>
@@ -76,12 +77,23 @@ require 'components/layout.php';
               </div>
               <div class="mb-3">
                 <label for="inputPassword5" class="form-label">Password</label>
-                <input type="password" id="inputPassword" name="password" class="form-control <?php if (!empty($passwordError))
-                  echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
-                  value="<?php echo htmlspecialchars($password); ?>">
-                <div class="invalid-feedback">
-                  <?php echo $passwordError; ?>
+                <div class="input-group">
+                  <input type="password" id="inputPassword" name="password" class="form-control <?php if (!empty($passwordError))
+                    echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
+                    value="<?php echo htmlspecialchars($password); ?>">
+                  <!-- close eye -->
+                  <span class="input-group-text rounded-end toggle-icon" id="togglePassword"
+                    onclick="togglePasswordVisibility()">
+                    <i id="toggleIcon" class="fas fa-eye-slash"></i>
+                  </span>
+                  <div class="invalid-feedback">
+                    <?php echo $passwordError; ?>
+                  </div>
+                  <div class="invalid-feedback">
+                    <?php echo $passwordError; ?>
+                  </div>
                 </div>
+
               </div>
               <div class="d-flex justify-content-end">
                 <button type="submit" class="btn m-3 btn-outline-danger rounded-5">Log in</button>
@@ -93,13 +105,21 @@ require 'components/layout.php';
             </div>
           </div>
         </div>
-
       </div>
     </div>
+    <script>
+      function togglePasswordVisibility() {
+        var passwordInput = document.getElementById("inputPassword");
+        var toggleIcon = document.getElementById("toggleIcon");
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-      crossorigin="anonymous"></script>
-</body>
-
-</html>
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          toggleIcon.classList.remove("fa-eye-slash");
+          toggleIcon.classList.add("fa-eye");
+        } else {
+          passwordInput.type = "password";
+          toggleIcon.classList.remove("fa-eye");
+          toggleIcon.classList.add("fa-eye-slash");
+        }
+      }
+    </script>

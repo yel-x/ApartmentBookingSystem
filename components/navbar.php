@@ -18,7 +18,7 @@ if (isset($_GET['userId'])) {
         exit;
     }
 }
-require 'components/layout.php';
+require 'layout.php';
 ?>
 <style>
     .logIn {
@@ -43,17 +43,14 @@ require 'components/layout.php';
     }
 
     .addson::-webkit-scrollbar {
-
         background-color: transparent;
     }
 
-
-
     .addson::-webkit-scrollbar-thumb {
-        background-image: url("assets/arrows.png");
-        background-repeat: no-repeat;
-        background-size: contain;
-        cursor: pointer;
+        border: 1px solid #9d8189;
+        background-image: linear-gradient(45deg, #ffcad4, #f4acb7, #ffe5d9);
+        border-radius: 10px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 </style>
 </head>
@@ -86,7 +83,7 @@ require 'components/layout.php';
             <div class="offcanvas-body">
                 <ul class="list-unstyled ms-4">
                     <li class="mt-3">
-                        <a href="<?php echo $userId ? 'account.php?userId=' . $userId : 'login.php'; ?>"
+                        <a href="<?php echo $userId == 1 ? 'admin-dashboard.php?userId=' . $userId : 'account.php?userId=' . $userId; ?>"
                             class="text-decoration-none text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
                                 class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -139,3 +136,15 @@ require 'components/layout.php';
             </div>
         </div>
     </nav>
+    <script>
+        const offcanvasElement = document.querySelector('#offCanvas');
+        const offcanvasItems = offcanvasElement.querySelectorAll('li');
+
+        offcanvasItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                offcanvas.hide();
+            });
+        });
+
+    </script>
