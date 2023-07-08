@@ -1,5 +1,5 @@
 <?php
-include 'connect.php';
+include 'components/connect.php';
 
 // Retrieve the form data
 $emailError = $passwordError = '';
@@ -32,7 +32,7 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
       $row = $result->fetch_assoc();
       $userId = $row['id'];
 
-      header("Location: index.php?id=" . urlencode($userId));
+      header("Location: index.php?userId=" . urlencode($userId));
       exit; // Stop further execution
     } else {
       // Login failed
@@ -41,17 +41,11 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
     $conn->close();
   }
 }
+
+require 'components/layout.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
-  <title>Log In</title>
+<title>Log In</title>
 </head>
 
 <body>
