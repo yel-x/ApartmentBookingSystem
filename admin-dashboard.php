@@ -15,7 +15,7 @@ $toastShown = isset($_SESSION['toastShown']) && $_SESSION['toastShown'];
 
 if (!$toastShown) {
     // Prepare the SQL query with a placeholder for the user ID
-    $sql = "SELECT * FROM userinfocopy WHERE id <> ? AND lastModified > ?";
+    $sql = "SELECT * FROM userinfocopy WHERE id <> ? AND timestamp > ?";
     $stmt = $conn->prepare($sql);
 
     // Get the current timestamp
