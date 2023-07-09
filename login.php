@@ -42,7 +42,7 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
   }
 }
 
-require 'components/layout.php';
+require 'components/navbar.php';
 ?>
 
 <title>Log In</title>
@@ -50,7 +50,7 @@ require 'components/layout.php';
 
 
 <body>
-  <div class="container pt-4 pt-lg-0 d-flex justify-content-center align-items-center vh-100">
+  <div class="container pt-4 pt-lg-0 d-flex justify-content-center align-items-center mt-0 mt-lg-5">
     <div class="card shadow-lg " style="max-width: 30rem; height: auto">
       <div class="row g-0">
         <div class="col-md-4">

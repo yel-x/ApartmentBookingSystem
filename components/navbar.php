@@ -4,22 +4,25 @@ require 'retrieve.php';
 // Check if userId exists in the URL
 if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
+
     // Remove the login button and replace it with a logout button
     $logoutButton = '<a href="login.php" class="text-decoration-none text-white">Log out</a>';
 } else {
     // Set userId to an empty value
     $userId = '';
-    // Display the login button
-    $logoutButton = '<a href="login.php" class="text-decoration-none text-white">Log in</a>';
 
     // Redirect the user to login.php if they clicked the account item
-    if (isset($_GET['account']) && $userId === '') {
+    if (isset($_GET['account'])) {
         header("Location: login.php");
         exit;
     }
+
+    // Display the login button
+    $logoutButton = '<a href="login.php" class="text-decoration-none text-white">Log in</a>';
 }
 require 'layout.php';
 ?>
+
 <style>
     .logIn {
         background: linear-gradient(315deg, #0049ff, #d25f72, #a71a31);
@@ -83,17 +86,40 @@ require 'layout.php';
             <div class="offcanvas-body">
                 <ul class="list-unstyled ms-4">
                     <li class="mt-3">
-                        <a href="<?php echo $userId == 1 ? 'admin-dashboard.php?userId=' . $userId : 'account.php?userId=' . $userId; ?>"
-                            class="text-decoration-none text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
-                                class="bi bi-person-circle" viewBox="0 0 16 16">
-                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                                <path fill-rule="evenodd"
-                                    d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
-                            </svg>
-                            Account
-                        </a>
+                        <?php if (!isset($_GET['userId'])): ?>
+                            <a href="login.php" class="text-decoration-none text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                                    class="bi bi-person-circle" viewBox="0 0 16 16">
+                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                                    <path fill-rule="evenodd"
+                                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+                                </svg>
+                                Account
+                            </a>
+                        <?php elseif ($userId == 1): ?>
+                            <a href="admin-dashboard.php?userId=1" class="text-decoration-none text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                                    class="bi bi-person-circle" viewBox="0 0 16 16">
+                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                                    <path fill-rule="evenodd"
+                                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+                                </svg>
+                                Account
+                            </a>
+                        <?php else: ?>
+                            <a href="<?php echo 'account.php?userId=' . $userId; ?>"
+                                class="text-decoration-none text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                                    class="bi bi-person-circle" viewBox="0 0 16 16">
+                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                                    <path fill-rule="evenodd"
+                                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+                                </svg>
+                                Account
+                            </a>
+                        <?php endif; ?>
                     </li>
+
                     <li class="mt-4">
                         <a href="index.php<?php echo $userId ? '?userId=' . $userId : ''; ?>#rooms"
                             class="text-decoration-none text-white">

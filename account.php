@@ -10,8 +10,18 @@ require 'components/layout.php';
 <body>
   <?php require 'components/navbar.php'; ?>
   <div class="container-md">
+    <?php
+    if (isset($_GET['successMessage'])) {
+      $successMessage = $_GET['successMessage'];
+      echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>Success updating your account!</strong> ' . $successMessage . '
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>';
+    }
+    ?>
     <div class="row row-cols-1 row-cols-sm-2 d-flex justify-content-center align-items-center ">
       <div class="col  d-flex flex-column align-items-center p-3 p-lg-5 text-center vh-25">
+
         <h1 class="pt-5">Welcome
           <?php echo $fName; ?>!
         </h1>
@@ -19,7 +29,7 @@ require 'components/layout.php';
           Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae ex
           quos libero non quasi blanditiis veniam tempore. Eligendi, hic enim.
         </p>
-        <button class="btn btn-outline-danger w-50 mt-5 rounded-pill">
+        <button class="btn btn-outline-danger w-50 mt-5 rounded-pill d-none d-md-block">
           Leave us a Review!
         </button>
       </div>

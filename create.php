@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
 <?php
-require 'components/layout.php';
+require 'components/navbar.php';
 ?>
 <style>
   .toggle-icon {
@@ -85,7 +85,7 @@ require 'components/layout.php';
 </head>
 
 <body>
-  <div class="container py-4 py-lg-5 d-flex flex-row-reverse justify-content-center align-items-center h-100">
+  <div class="container my-3 mt-lg-4 d-flex flex-row-reverse justify-content-center align-items-center">
     <div class="card shadow-lg" style="max-width: 50rem; height: auto">
       <div class="row g-0">
         <div class="col-md-4">

@@ -47,7 +47,7 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
         $sql = "UPDATE `userInfo` SET fName='$fName', lName='$lName', email='$email', password='$password', cPassword='$cPassword' WHERE id=$userId";
         $result = mysqli_query($conn, $sql);
         if ($result) {
-            header("Location: account.php?userId=" . urlencode($userId));
+            header("Location: account.php?userId=" . urlencode($userId) . "&successMessage=" . urlencode($successMessage));
             exit; // Stop further processing
         }
     }
@@ -56,7 +56,7 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
 ?>
 
 <?php
-require 'components/layout.php';
+require 'components/navbar.php';
 ?>
 <title>Update Profile</title>
 </head>
