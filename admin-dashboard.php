@@ -8,14 +8,14 @@ require 'components/retrieveComplete.php';
 $yourUserId = 1;
 
 // Initialize an empty array to store user data
-$userInfoCopy = [];
+$userinfocopy = [];
 
 // Check if the toast has already been shown
 $toastShown = isset($_SESSION['toastShown']) && $_SESSION['toastShown'];
 
 if (!$toastShown) {
     // Prepare the SQL query with a placeholder for the user ID
-    $sql = "SELECT * FROM userInfoCopy WHERE id <> ? AND lastModified > ?";
+    $sql = "SELECT * FROM userinfocopy WHERE id <> ? AND lastModified > ?";
     $stmt = $conn->prepare($sql);
 
     // Get the current timestamp
@@ -35,7 +35,7 @@ if (!$toastShown) {
         // Loop through the result set and fetch each row as an associative array
         while ($row = $result->fetch_assoc()) {
             // Append each row to the $userInfoCopy array
-            $userInfoCopy[] = $row;
+            $userinfocopy[] = $row;
         }
     }
 
@@ -59,7 +59,7 @@ if ($result->num_rows > 0) {
     // Loop through the result set and fetch each row as an associative array
     while ($row = $result->fetch_assoc()) {
         // Append each row to the $userInfoCopy array
-        $userInfoCopy[] = $row;
+        $userinfocopy[] = $row;
     }
 }
 
@@ -73,254 +73,348 @@ $conn->close();
 
 <title>Dashboard</title>
 
-
+<!-- breadcrumbs -->
+<h1 class="mt-5 text-center fw-bold">Dashboard</h1>
 <?php
-
+$currentFile = basename($_SERVER['PHP_SELF']);
+$isDashboard = $currentFile === 'admin-dashboard.php';
+$isUserTable = $currentFile === 'userTable.php';
+$isBookAppointment = $currentFile === 'bookAppointment.php';
 ?>
-<?php if (!empty($userinfocopy)): ?>
-    <div aria-live="polite" aria-atomic="true" class="position-relative">
-        <div class="toast-container top-0 end-0 p-3">
-            <?php foreach ($userinfocopy as $user): ?>
-                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <i class="fas fa-bell pe-2"></i>
-                        <strong class="me-auto">RPABS</strong>
-                        <small class="text-body-secondary">Just now</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        New data added for user
-                        <?php echo $user['id']; ?>:
-                        <?php echo $user['fName']; ?>
-                        <?php echo $user['lName']; ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
+
+<nav aria-label="breadcrumb" id="breadcrumbs">
+    <ol class="breadcrumb ms-5">
+        <li class="breadcrumb-item <?php if ($isDashboard && !$isUserTable && !$isBookAppointment)
+            echo 'active'; ?>">
+            <?php if ($isDashboard && !$isUserTable && !$isBookAppointment): ?>
+                Dashboard
+            <?php else: ?>
+                <a href="admin-dashboard.php?userId=<?php echo $userId; ?>">Dashboard</a>
+            <?php endif; ?>
+        </li>
+        <li class="breadcrumb-item <?php if ($isUserTable || $isBookAppointment)
+            echo 'active'; ?>">
+            <?php if ($isUserTable): ?>
+                UserTable
+            <?php elseif ($isBookAppointment): ?>
+                Book Appointment
+            <?php endif; ?>
+        </li>
+    </ol>
+</nav>
+
+<?php if ($isDashboard && !$isUserTable && !$isBookAppointment): ?>
+    <div class="container d-flex justify-content-center">
+        <div>
+            <a href="#" id="userTableLink" class="breadcrumb-link text-decoration-none text-reset me-4 m-md-5">Go to User
+                Table</a>
         </div>
+        <?php if (!$isUserTable && !$isBookAppointment): ?>
+            <div>
+                <a href="#" id="bookAppointmentLink" class="breadcrumb-link text-decoration-none text-reset  m-0 m-md-5">Book
+                    Appointment</a>
+            </div>
+        <?php endif; ?>
     </div>
-
-    <script>
-        // Get the toast elements
-        const toastElements = document.querySelectorAll('.toast');
-
-        // Create a Toast instance for each toast element
-        toastElements.forEach((toastElement) => {
-            const toast = new bootstrap.Toast(toastElement);
-            toast.show();
-        });
-    </script>
+    <br>
+    <hr>
 <?php endif; ?>
-<?php
-if (isset($_SESSION['successMessage'])) {
-    $successMessage = $_SESSION['successMessage'];
-    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+
+<!-- User Table Content -->
+<div id="userTable" <?php if (!$isUserTable)
+    echo 'style="display: none;"'; ?>>
+    <?php if (!empty($userinfocopy)): ?>
+        <div aria-live="polite" aria-atomic="true" class="position-relative">
+            <div class="toast-container top-0 end-0 p-3">
+                <?php foreach ($userinfocopy as $user): ?>
+                    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <i class="fas fa-bell pe-2"></i>
+                            <strong class="me-auto">RPABS</strong>
+                            <small class="text-body-secondary">Just now</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">
+                            New data added for user
+                            <?php echo $user['id']; ?>:
+                            <?php echo $user['fName']; ?>
+                            <?php echo $user['lName']; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <script>
+            // Get the toast elements
+            const toastElements = document.querySelectorAll('.toast');
+
+            // Create a Toast instance for each toast element
+            toastElements.forEach((toastElement) => {
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+            });
+        </script>
+    <?php endif; ?>
+
+    <!-- table -->
+    <div class="container mt-3 mb-5 my-lg-5">
+        <?php
+        if (isset($_SESSION['successMessage'])) {
+            $successMessage = $_SESSION['successMessage'];
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
               <strong>' . $successMessage . '</strong>
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>';
 
-    // Clear the success message from the session
-    unset($_SESSION['successMessage']);
-}
-?>
-<!-- table -->
-<div class="container mt-3 mb-5 my-lg-5">
-    <h1>New User List</h1>
-    <div class="table-responsive">
-        <?php if (empty($userinfocopy)): ?> <!-- Check if the $userinfocopy array is empty -->
-            <p>No data available.</p> <!-- Display the "No data available" message -->
-        <?php else: ?>
-            <table class="table table-striped table-hover table-bordered shadow rounded-5">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Password</th>
-                        <th>Operation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $counter = 1;
-                    foreach ($userinfocopy as $user):
-                        ?>
+            // Clear the success message from the session
+            unset($_SESSION['successMessage']);
+        }
+        ?>
+        <h1>New User List</h1>
+        <div class="table-responsive">
+            <?php if (empty($userinfocopy)): ?> <!-- Check if the $userinfocopy array is empty -->
+                <p>No data available.</p> <!-- Display the "No data available" message -->
+            <?php else: ?>
+                <table class="table table-striped table-hover table-bordered shadow rounded-5">
+                    <thead>
                         <tr>
-                            <td>
-                                <?php echo $counter++; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['fName']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['lName']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['email']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['password']; ?>
-                            </td>
-                            <td>
-                                <form action="admin-dashboard.php" method="post">
-                                    <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
-                                    <button type="submit" class="btn btn-danger rounded-pill btn-sm p-2 mb-2 mb-lg-0"
-                                        name="moveToOngoing">Ongoing</button>
-                                    <button type="submit" class="btn btn-success rounded-pill btn-sm p-2  mb-lg-0"
-                                        name="moveToCompleteFromUserInfo">Complete</button>
-                                </form>
-                            </td>
+                            <th>#</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Operation</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $counter = 1;
+                        foreach ($userinfocopy as $user):
+                            ?>
+                            <tr>
+                                <td>
+                                    <?php echo $counter++; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['fName']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['lName']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['email']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['password']; ?>
+                                </td>
+                                <td>
+                                    <form action="admin-dashboard.php" method="post">
+                                        <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
+                                        <button type="submit" class="btn btn-danger rounded-pill btn-sm p-2 mb-2 mb-lg-0"
+                                            name="moveToOngoing">Ongoing</button>
+                                        <button type="submit" class="btn btn-success rounded-pill btn-sm p-2  mb-lg-0"
+                                            name="moveToCompleteFromUserInfo">Complete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
 
-<!-- Ongoing Table -->
-<div class="container mb-5">
-    <h1>Ongoing</h1>
-    <div class="table-responsive">
-        <?php if (empty($ongoingUser)): ?> <!-- Check if the $ongoingUser array is empty -->
-            <p>No data available.</p> <!-- Display the "No data available" message -->
-        <?php else: ?>
-            <table class="table table-striped table-hover table-bordered shadow rounded-5">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Password</th>
-                        <th>Operation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $counter = 1;
-                    foreach ($ongoingUser as $user):
-                        ?>
+    <!-- Ongoing Table -->
+    <div class="container mb-5">
+        <h1>Ongoing</h1>
+        <div class="table-responsive">
+            <?php if (empty($ongoingUser)): ?> <!-- Check if the $ongoingUser array is empty -->
+                <p>No data available.</p> <!-- Display the "No data available" message -->
+            <?php else: ?>
+                <table class="table table-striped table-hover table-bordered shadow rounded-5">
+                    <thead>
                         <tr>
-                            <td>
-                                <?php echo $counter++; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['fName']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['lName']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['email']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['password']; ?>
-                            </td>
-                            <td>
-                                <form action="admin-dashboard.php" method="post">
-                                    <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
-                                    <button type="submit" class="btn btn-success rounded-pill btn-sm m-2"
-                                        name="moveToCompleteFromOngoing">Complete</button>
-                                </form>
-                            </td>
+                            <th>#</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Operation</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $counter = 1;
+                        foreach ($ongoingUser as $user):
+                            ?>
+                            <tr>
+                                <td>
+                                    <?php echo $counter++; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['fName']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['lName']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['email']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['password']; ?>
+                                </td>
+                                <td>
+                                    <form action="admin-dashboard.php" method="post">
+                                        <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
+                                        <button type="submit" class="btn btn-success rounded-pill btn-sm m-2"
+                                            name="moveToCompleteFromOngoing">Complete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
 
-<!-- Complete Table -->
-<div class="container mt-3 mb-5 my-lg-5">
-    <h1>Complete</h1>
-    <div class="table-responsive">
-        <?php if (empty($completeUser)): ?> <!-- Check if the $completeUser array is empty -->
-            <p>No data available.</p> <!-- Display the "No data available" message -->
-        <?php else: ?>
-            <table class="table table-striped table-hover table-bordered shadow rounded-5">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Password</th>
-                        <th>Operation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $counter = 1;
-                    foreach ($completeUser as $user):
-                        ?>
+    <!-- Complete Table -->
+    <div class="container mt-3 mb-5 my-lg-5">
+        <h1>Complete</h1>
+        <div class="table-responsive">
+            <?php if (empty($completeUser)): ?> <!-- Check if the $completeUser array is empty -->
+                <p>No data available.</p> <!-- Display the "No data available" message -->
+            <?php else: ?>
+                <table class="table table-striped table-hover table-bordered shadow rounded-5">
+                    <thead>
                         <tr>
-                            <td>
-                                <?php echo $counter++; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['id']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['fName']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['lName']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['email']; ?>
-                            </td>
-                            <td>
-                                <?php echo $user['password']; ?>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
-                                    data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
-                                    Delete
-                                </button>
+                            <th>#</th>
 
-                                <!-- Delete Confirmation Modal -->
-                                <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
-                                    aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>Are you sure you want to delete this row?</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Cancel</button>
-                                                <form action="admin-dashboard.php" method="post">
-                                                    <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
-                                                    <button type="submit" class="btn btn-danger"
-                                                        name="deleteFromComplete">Delete</button>
-                                                </form>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Operation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $counter = 1;
+                        foreach ($completeUser as $user):
+                            ?>
+                            <tr>
+                                <td>
+                                    <?php echo $counter++; ?>
+                                </td>
+
+                                <td>
+                                    <?php echo $user['fName']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['lName']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['email']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['password']; ?>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
+                                        Delete
+                                    </button>
+
+                                    <!-- Delete Confirmation Modal -->
+                                    <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
+                                        aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm
+                                                        Deletion
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete this row?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="admin-dashboard.php" method="post">
+                                                        <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
+                                                        <button type="submit" class="btn btn-danger"
+                                                            name="deleteFromComplete">Delete</button>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
-<?php
-// Check if a message is present in the session
-if (isset($_SESSION['message'])) {
-    // Display the message in a <div> element
-    echo '<div class="message">' . $_SESSION['message'] . '</div>';
+    <?php
+    // Check if a message is present in the session
+    if (isset($_SESSION['message'])) {
+        // Display the message in a <div> element
+        echo '<div class="message">' . $_SESSION['message'] . '</div>';
 
-    // Clear the message from the session
-    unset($_SESSION['message']);
-}
-?>
+        // Clear the message from the session
+        unset($_SESSION['message']);
+    }
+    ?>
+</div>
+
+<!-- book appointment content -->
+<div id="bookAppointment" style="display: none;" <?php if (!$isBookAppointment)
+    echo 'style="display: none;"'; ?>>
+    <h1>Book appointment</h1>
+</div>
+
+<script>
+    document.getElementById('userTableLink').addEventListener('click', function (event) {
+        event.preventDefault();
+        document.getElementById('userTable').style.display = 'block';
+        document.getElementById('bookAppointment').style.display = 'none';
+        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php"></a></li><li class="breadcrumb-item active">UserTable</li></ol>';
+        document.getElementById('userTableLink').style.display = 'none';
+        document.getElementById('bookAppointmentLink').style.display = 'inline-block';
+        var dashboardLink = document.createElement('a');
+        dashboardLink.href = 'admin-dashboard.php?userId=<?php echo $userId; ?>';
+        dashboardLink.textContent = 'Dashboard';
+        document.getElementById('breadcrumbs').childNodes[0].prepend(dashboardLink);
+
+        // Hide book appointment link
+        document.getElementById('bookAppointmentLink').style.display = 'none';
+    });
+
+    document.getElementById('bookAppointmentLink').addEventListener('click', function (event) {
+        event.preventDefault();
+        document.getElementById('userTable').style.display = 'none';
+        document.getElementById('bookAppointment').style.display = 'block';
+        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php"></a></li><li class="breadcrumb-item active">Book Appointment</li></ol>';
+        document.getElementById('userTableLink').style.display = 'inline-block';
+        document.getElementById('bookAppointmentLink').style.display = 'none';
+        var dashboardLink = document.createElement('a');
+        dashboardLink.href = 'admin-dashboard.php?userId=<?php echo $userId; ?>';
+        dashboardLink.textContent = 'Dashboard';
+        document.getElementById('breadcrumbs').childNodes[0].prepend(dashboardLink);
+
+        // Hide user table link
+        document.getElementById('userTableLink').style.display = 'none';
+    });
+
+    // Hide book appointment link if user is on the User Table page
+    if ($isUserTable) {
+        document.getElementById('bookAppointmentLink').style.display = 'none';
+    }
+
+</script>

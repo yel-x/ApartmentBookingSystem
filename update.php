@@ -1,7 +1,7 @@
 <?php
 include 'components/retrieve.php';
 
-$fNameError = $lNameError = $emailError = $passwordError = $cPasswordError = '';
+$fNameError = $lNameError = $emailError = $passwordError = $cPasswordError = $pfPictureError = '';
 // = $pfPictureError
 if (isset($_POST['submit']) || isset($_POST['userId'])) {
     $userId = $_GET['userId'];
@@ -42,6 +42,41 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
         $cPasswordError = 'Passwords do not match.';
     }
 
+    // Validate profile picture
+    if ($_FILES['pfPicture']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = "uploads/"; // Directory to store uploaded images
+        $uploadFile = $uploadDir . basename($_FILES['pfPicture']['name']);
+
+        // Move the uploaded file to the specified directory
+        if (move_uploaded_file($_FILES['pfPicture']['tmp_name'], $uploadFile)) {
+            $newPicture = $uploadFile;
+
+            // Retrieve the old profile picture path for the user from the database
+            $sql = "SELECT pfPicture FROM userInfo WHERE id = $userId";
+            $result = mysqli_query($conn, $sql);
+
+            if ($result && mysqli_num_rows($result) > 0) {
+                $row = mysqli_fetch_assoc($result);
+                $oldPicture = $row['pfPicture'];
+
+                // Update the profile picture path in the database
+                $updateSql = "UPDATE userInfo SET pfPicture = '$newPicture' WHERE id = $userId";
+                $updateResult = mysqli_query($conn, $updateSql);
+
+                if ($updateResult) {
+                    // Delete the old picture file
+                    if ($oldPicture !== "path/to/old/picture.jpg") {
+                        unlink($oldPicture);
+                    }
+                } else {
+                    // Handle the error case if updating the picture path fails
+                }
+            }
+        }
+    } else {
+        $newPicture = $oldPicture; // Keep the old picture if no new picture is uploaded
+    }
+
     // If there are no validation errors, update the user information
     if (empty($fNameError) && empty($lNameError) && empty($emailError) && empty($passwordError) && empty($cPasswordError)) {
         $sql = "UPDATE `userInfo` SET fName='$fName', lName='$lName', email='$email', password='$password', cPassword='$cPassword' WHERE id=$userId";
@@ -52,6 +87,7 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
         }
     }
 }
+
 
 ?>
 
@@ -87,6 +123,16 @@ require 'components/navbar.php';
             <?php if (!empty($lNameError)): ?>
                 <div class="invalid-feedback">
                     <?php echo $lNameError; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <div class="form-group mb-3">
+            <label for="formFile" class="form-label">Upload your picture</label>
+            <input class="form-control <?php if (!empty($pfPictureError))
+                echo 'is-invalid'; ?>" type="file" id="pfPicture" name="pfPicture">
+            <?php if (!empty($pfPictureError)): ?>
+                <div class="invalid-feedback">
+                    <?php echo $pfPictureError; ?>
                 </div>
             <?php endif; ?>
         </div>
