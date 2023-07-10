@@ -95,9 +95,9 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
         <li class="breadcrumb-item <?php if ($isUserTable || $isBookAppointment)
             echo 'active'; ?>">
             <?php if ($isUserTable): ?>
-                UserTable
+                Book appointment
             <?php elseif ($isBookAppointment): ?>
-                Book Appointment
+                User Table
             <?php endif; ?>
         </li>
     </ol>
@@ -106,13 +106,14 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
 <?php if ($isDashboard && !$isUserTable && !$isBookAppointment): ?>
     <div class="container d-flex justify-content-center">
         <div>
-            <a href="#" id="userTableLink" class="breadcrumb-link text-decoration-none text-reset me-4 m-md-5">Go to User
-                Table</a>
+            <a href="#" id="userTableLink" class="breadcrumb-link text-decoration-none text-reset me-4 m-md-5">Book
+                Appointment</a>
         </div>
         <?php if (!$isUserTable && !$isBookAppointment): ?>
             <div>
-                <a href="#" id="bookAppointmentLink" class="breadcrumb-link text-decoration-none text-reset  m-0 m-md-5">Book
-                    Appointment</a>
+                <a href="#" id="bookAppointmentLink" class="breadcrumb-link text-decoration-none text-reset  m-0 m-md-5">Go to
+                    User
+                    Table</a>
             </div>
         <?php endif; ?>
     </div>
@@ -376,7 +377,7 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
 <!-- book appointment content -->
 <div id="bookAppointment" style="display: none;" <?php if (!$isBookAppointment)
     echo 'style="display: none;"'; ?>>
-    <h1>Book appointment</h1>
+    <h1>User Table</h1>
 </div>
 
 <script>
@@ -384,7 +385,7 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
         event.preventDefault();
         document.getElementById('userTable').style.display = 'block';
         document.getElementById('bookAppointment').style.display = 'none';
-        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php"></a></li><li class="breadcrumb-item active">UserTable</li></ol>';
+        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php"></a></li><li class="breadcrumb-item active">Book Appointment</li></ol>';
         document.getElementById('userTableLink').style.display = 'none';
         document.getElementById('bookAppointmentLink').style.display = 'inline-block';
         var dashboardLink = document.createElement('a');
@@ -400,7 +401,7 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
         event.preventDefault();
         document.getElementById('userTable').style.display = 'none';
         document.getElementById('bookAppointment').style.display = 'block';
-        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php"></a></li><li class="breadcrumb-item active">Book Appointment</li></ol>';
+        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php"></a></li><li class="breadcrumb-item active">User Table</li></ol>';
         document.getElementById('userTableLink').style.display = 'inline-block';
         document.getElementById('bookAppointmentLink').style.display = 'none';
         var dashboardLink = document.createElement('a');
