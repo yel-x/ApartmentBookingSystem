@@ -1,10 +1,24 @@
 <?php
 require 'components/retrieve.php';
+require 'components/retrieveRooms.php';
 require 'components/layout.php';
+
+// Assuming $roomNumber contains the room number for each iteration
+$roomNumber = 1; // Replace this with the actual room number
+
+// Add a conditional class based on even/odd room number
+$evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
 ?>
 <style>
   .carouselBtn {
     margin: 0 150px;
+  }
+
+  .carousel-inner img {
+    width: 100%;
+    height: 30em;
+    object-fit: cover;
+    margin: 0 auto;
   }
 </style>
 <title>RPABS</title>
@@ -31,7 +45,7 @@ require 'components/layout.php';
           </div>
           <div class="carousel-inner ">
             <div class="carousel-item active">
-              <img src="assets/pexels-thorsten-technoman-338504.jpg" class="imgC d-block  rounded rounded-3 w-100"
+              <img src="assets/pexels-thorsten-technoman-338504.jpg" class=" d-block  rounded rounded-3 w-100"
                 alt="...">
               <div class="carousel-caption d-none d-md-block position-absolute top-0 end-0 text-end pe-3">
                 <h5>First slide label</h5>
@@ -40,7 +54,7 @@ require 'components/layout.php';
               </div>
             </div>
             <div class="carousel-item">
-              <img src="assets/pexels-thorsten-technoman-338504.jpg" class="imgC d-block  rounded rounded-3 w-100"
+              <img src="uploads\Yae-Miko-birthday-art-2022-genshinimpact.jpg" class=" d-block  rounded rounded-3 w-100"
                 alt="...">
               <div class="carousel-caption d-none d-md-block position-absolute top-0 end-0 text-end pe-3">
                 <h5>Second slide label</h5>
@@ -48,8 +62,7 @@ require 'components/layout.php';
               </div>
             </div>
             <div class="carousel-item">
-              <img src="assets/pexels-thorsten-technoman-338504.jpg" class="imgC d-block  rounded rounded-3 w-100"
-                alt="...">
+              <img src="uploads\F0kQliLXsAEi8ic.jpg" class=" d-block  rounded rounded-3 w-100" alt="...">
               <div class="carousel-caption d-none d-md-block  position-absolute top-0 end-0 text-end pe-3">
                 <h5>Third slide label</h5>
                 <p>Some representative placeholder content for the third slide.</p>
@@ -85,56 +98,45 @@ require 'components/layout.php';
   <section id="rooms">
     <div class="container-sm py-3">
       <!-- room 1 -->
-      <div class="mb-3">
-        <div class="d-lg-flex">
-          <div class="pt-3 p-lg-3">
-            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img rounded rounded-3"
-              style="width: 18rem" />
-          </div>
-          <div class="pt-2 p-lg-3 mt-3 mt-lg-5">
-            <h2>Room 1</h2>
-            <p>
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-              Doloribus nihil provident modi totam nesciunt dolorum accusamus
-              placeat at ullam ut?
-            </p>
-          </div>
-        </div>
-      </div>
-      <!-- room 2 -->
-      <div class="mb-3">
-        <div class="d-lg-flex flex-row-reverse">
-          <div class="pt-3">
-            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img rounded rounded-3"
-              style="width: 18rem" />
-          </div>
-          <div class="pt-2 p-lg-5 mt-3 mt-lg-5">
-            <h2 class="text-lg-end">Room 2</h2>
-            <p class="text-lg-end">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-              Doloribus nihil provident modi totam nesciunt dolorum accusamus
-              placeat at ullam ut?
-            </p>
-          </div>
-        </div>
-      </div>
-      <!-- room 3 -->
-      <div class="mb-3">
-        <div class="d-lg-flex">
-          <div class="pt-3 p-lg-3">
-            <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="" class="card-img rounded rounded-3"
-              style="width: 18rem" />
-          </div>
-          <div class="pt-2 p-lg-3 mt-3 mt-lg-5">
-            <h2>Room 3</h2>
-            <p>
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-              Doloribus nihil provident modi totam nesciunt dolorum accusamus
-              placeat at ullam ut?
-            </p>
+      <?php foreach ($rooms as $room): ?>
+        <div class="mb-3 mx-lg-5 px-lg-5">
+          <div class="d-lg-flex <?php echo $room['rID'] % 2 === 0 ? 'flex-row-reverse' : ''; ?>">
+            <div class="pt-3 p-lg-3">
+              <?php if (isset($room['picture']) && !empty(trim($room['picture']))): ?>
+                <?php
+                // Split the picture URLs into an array using line breaks as delimiters
+                $pictureUrls = explode("\n", $room['picture']);
+                // Take the first URL from the array
+                $firstPictureUrl = isset($pictureUrls[0]) ? trim($pictureUrls[0]) : null;
+                ?>
+                <!-- Wrap the room content inside an anchor tag with a link to roomDetails page -->
+                <a class="text-decoration-none text-reset"
+                  href="<?php echo $userId && !empty($userId) ? 'roomDetails.php?userId=' . $userId . '&rID=' . $room['rID'] : 'roomDetails.php?rID=' . $room['rID']; ?>">
+                  <img src="<?php echo $firstPictureUrl; ?>" alt="" class="card-img rounded rounded-3"
+                    style="width: 18rem" />
+                </a>
+              <?php endif; ?>
+            </div>
+            <div class="pt-2 mt-3 mt-lg-5">
+              <?php if (isset($room['title'])): ?>
+                <!-- Wrap the room title inside an anchor tag with a link to roomDetails page -->
+                <a class="text-decoration-none text-reset"
+                  href="<?php echo $userId && !empty($userId) ? 'roomDetails.php?userId=' . $userId . '&rID=' . $room['rID'] : 'roomDetails.php?rID=' . $room['rID']; ?>">
+                  <h2 class="<?php echo $room['rID'] % 2 === 0 ? 'text-lg-end' : ''; ?>">
+                    <?php echo $room['title']; ?>
+                  </h2>
+                </a>
+              <?php endif; ?>
+              <?php if (isset($room['description'])): ?>
+                <p class="<?php echo $room['rID'] % 2 === 0 ? 'text-lg-end' : ''; ?>">
+                  <?php echo $room['description']; ?>
+                </p>
+              <?php endif; ?>
+            </div>
           </div>
         </div>
-      </div>
+      <?php endforeach; ?>
+
     </div>
   </section>
   <!-- adds on -->

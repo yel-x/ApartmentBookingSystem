@@ -20,8 +20,11 @@ if (isset($_GET['userId'])) {
     // Display the login button
     $logoutButton = '<a href="login.php" class="text-decoration-none text-white">Log in</a>';
 }
+
+// No other PHP code or output should be present before this point
 require 'layout.php';
 ?>
+
 
 <style>
     .logIn {

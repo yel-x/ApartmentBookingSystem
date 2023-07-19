@@ -3,19 +3,21 @@ require 'components/move.php';
 require 'components/navbar.php';
 require 'components/retrieveOngoing.php';
 require 'components/retrieveComplete.php';
+require 'components/retrieveAppointment.php';
+require 'components/retrieveCopy.php';
 
 // Replace YOUR_USER_ID with the actual ID of your user in the database
 $yourUserId = 1;
 
 // Initialize an empty array to store user data
-$userinfocopy = [];
+$appointment = [];
 
 // Check if the toast has already been shown
 $toastShown = isset($_SESSION['toastShown']) && $_SESSION['toastShown'];
 
 if (!$toastShown) {
     // Prepare the SQL query with a placeholder for the user ID
-    $sql = "SELECT * FROM userinfocopy WHERE id <> ? AND timestamp > ?";
+    $sql = "SELECT * FROM appointment WHERE id <> ? AND timestamp > ?";
     $stmt = $conn->prepare($sql);
 
     // Get the current timestamp
@@ -34,8 +36,8 @@ if (!$toastShown) {
     if ($result->num_rows > 0) {
         // Loop through the result set and fetch each row as an associative array
         while ($row = $result->fetch_assoc()) {
-            // Append each row to the $userInfoCopy array
-            $userinfocopy[] = $row;
+            // Append each row to the $appointment array
+            $appointment[] = $row;
         }
     }
 
@@ -47,7 +49,7 @@ if (!$toastShown) {
 }
 
 // Prepare the SQL query to fetch all user data except for the user with ID 1
-$sql = "SELECT * FROM userInfoCopy WHERE id <> ?";
+$sql = "SELECT * FROM appointment WHERE aID <> ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $yourUserId);
 $stmt->execute();
@@ -58,8 +60,8 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     // Loop through the result set and fetch each row as an associative array
     while ($row = $result->fetch_assoc()) {
-        // Append each row to the $userInfoCopy array
-        $userinfocopy[] = $row;
+        // Append each row to the $appointment array
+        $appointment[] = $row;
     }
 }
 
@@ -72,7 +74,51 @@ $conn->close();
 
 
 <title>Dashboard</title>
+<?php
+if (isset($_SESSION['successMessage'])) {
+    $successMessage = $_SESSION['successMessage'];
+    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>' . $successMessage . '</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>';
 
+    // Clear the success message from the session
+    unset($_SESSION['successMessage']);
+}
+?>
+<?php if (!empty($appointment)): ?>
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container top-0 end-0 p-3">
+            <?php foreach ($appointment as $user): ?>
+                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <i class="fas fa-bell pe-2"></i>
+                        <strong class="me-auto">RPABS</strong>
+                        <small class="text-body-secondary">Just now</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        New data added for user
+                        <?php echo $user['aID']; ?>:
+                        <?php echo $user['fName']; ?>
+                        <?php echo $user['lName']; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <script>
+        // Get the toast elements
+        const toastElements = document.querySelectorAll('.toast');
+
+        // Create a Toast instance for each toast element
+        toastElements.forEach((toastElement) => {
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        });
+    </script>
+<?php endif; ?>
 <!-- breadcrumbs -->
 <h1 class="mt-5 text-center fw-bold">Dashboard</h1>
 <?php
@@ -121,60 +167,16 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
     <hr>
 <?php endif; ?>
 
-<!-- User Table Content -->
+<!-- book appointment Content -->
 <div id="userTable" <?php if (!$isUserTable)
     echo 'style="display: none;"'; ?>>
-    <?php if (!empty($userinfocopy)): ?>
-        <div aria-live="polite" aria-atomic="true" class="position-relative">
-            <div class="toast-container top-0 end-0 p-3">
-                <?php foreach ($userinfocopy as $user): ?>
-                    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <i class="fas fa-bell pe-2"></i>
-                            <strong class="me-auto">RPABS</strong>
-                            <small class="text-body-secondary">Just now</small>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body">
-                            New data added for user
-                            <?php echo $user['id']; ?>:
-                            <?php echo $user['fName']; ?>
-                            <?php echo $user['lName']; ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
 
-        <script>
-            // Get the toast elements
-            const toastElements = document.querySelectorAll('.toast');
-
-            // Create a Toast instance for each toast element
-            toastElements.forEach((toastElement) => {
-                const toast = new bootstrap.Toast(toastElement);
-                toast.show();
-            });
-        </script>
-    <?php endif; ?>
 
     <!-- table -->
     <div class="container mt-3 mb-5 my-lg-5">
-        <?php
-        if (isset($_SESSION['successMessage'])) {
-            $successMessage = $_SESSION['successMessage'];
-            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
-              <strong>' . $successMessage . '</strong>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>';
-
-            // Clear the success message from the session
-            unset($_SESSION['successMessage']);
-        }
-        ?>
         <h1>New User List</h1>
         <div class="table-responsive">
-            <?php if (empty($userinfocopy)): ?> <!-- Check if the $userinfocopy array is empty -->
+            <?php if (empty($appointment)): ?> <!-- Check if the $appointment array is empty -->
                 <p>No data available.</p> <!-- Display the "No data available" message -->
             <?php else: ?>
                 <table class="table table-striped table-hover table-bordered shadow rounded-5">
@@ -184,14 +186,15 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
-                            <th>Password</th>
+                            <th>Room Name</th>
+                            <th>Schedule</th>
                             <th>Operation</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
                         $counter = 1;
-                        foreach ($userinfocopy as $user):
+                        foreach ($appointment as $user):
                             ?>
                             <tr>
                                 <td>
@@ -207,11 +210,14 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
                                     <?php echo $user['email']; ?>
                                 </td>
                                 <td>
-                                    <?php echo $user['password']; ?>
+                                    <?php echo $user['title']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['date']; ?>
                                 </td>
                                 <td>
                                     <form action="admin-dashboard.php" method="post">
-                                        <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
+                                        <input type="hidden" name="userId" value="<?php echo $user['aID']; ?>">
                                         <button type="submit" class="btn btn-danger rounded-pill btn-sm p-2 mb-2 mb-lg-0"
                                             name="moveToOngoing">Ongoing</button>
                                         <button type="submit" class="btn btn-success rounded-pill btn-sm p-2  mb-lg-0"
@@ -240,7 +246,8 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
-                            <th>Password</th>
+                            <th>Room Name</th>
+                            <th>Schedule</th>
                             <th>Operation</th>
                         </tr>
                     </thead>
@@ -263,7 +270,10 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
                                     <?php echo $user['email']; ?>
                                 </td>
                                 <td>
-                                    <?php echo $user['password']; ?>
+                                    <?php echo $user['title']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['date']; ?>
                                 </td>
                                 <td>
                                     <form action="admin-dashboard.php" method="post">
@@ -295,7 +305,8 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
-                            <th>Password</th>
+                            <th>Room Name</th>
+                            <th>Schedule</th>
                             <th>Operation</th>
                         </tr>
                     </thead>
@@ -319,7 +330,10 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
                                     <?php echo $user['email']; ?>
                                 </td>
                                 <td>
-                                    <?php echo $user['password']; ?>
+                                    <?php echo $user['title']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $user['date']; ?>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
@@ -374,10 +388,86 @@ $isBookAppointment = $currentFile === 'bookAppointment.php';
     ?>
 </div>
 
-<!-- book appointment content -->
-<div id="bookAppointment" style="display: none;" <?php if (!$isBookAppointment)
+<!-- User Table content -->
+<div id="bookAppointment" class="container mt-3 mb-5 my-lg-5" style="display: none;" <?php if (!$isBookAppointment)
     echo 'style="display: none;"'; ?>>
     <h1>User Table</h1>
+    <?php if (empty($userinfocopy)): ?>
+        <p>No data available in this table.</p>
+    <?php else: ?>
+        <table class="table table-striped table-hover table-bordered shadow rounded-5">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $counter = 1;
+                foreach ($userinfocopy as $user):
+                    ?>
+                    <tr>
+                        <td>
+                            <?php echo $counter++; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['fName']; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['lName']; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['email']; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['password']; ?>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
+                                data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
+                                Delete
+                            </button>
+
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
+                                aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm
+                                                Deletion
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this row?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                            <form action="admin-dashboard.php" method="post">
+                                                <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
+                                                <button type="submit" class="btn btn-danger"
+                                                    name="deleteFromComplete">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+
+    <?php endif; ?>
 </div>
 
 <script>
