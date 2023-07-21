@@ -91,16 +91,58 @@ while ($row = mysqli_fetch_assoc($roomOccupancyResult)) {
     $roomOccupancyData['datasets'][] = $dataset;
 }
 
+$roomOccupancyQuery = "SELECT title, COUNT(*) AS room_count FROM appointment GROUP BY title";
+$roomOccupancyResult = mysqli_query($conn, $roomOccupancyQuery);
 
-// Daily/Weekly/Monthly Booking Trends - Debugging
-$dailyWeeklyMonthlyQuery = "SELECT DATE(date) AS appointment_date, COUNT(*) AS appointment_count FROM appointment GROUP BY DATE(date)";
-$dailyWeeklyMonthlyResult = mysqli_query($conn, $dailyWeeklyMonthlyQuery);
-
-$dailyWeeklyMonthlyData = array();
-while ($row = mysqli_fetch_assoc($dailyWeeklyMonthlyResult)) {
-    $dailyWeeklyMonthlyData['dates'][] = $row['appointment_date'];
-    $dailyWeeklyMonthlyData['counts'][] = (int) $row['appointment_count'];
+// Format the data for the doughnut chart
+$data = [];
+while ($row = mysqli_fetch_assoc($roomOccupancyResult)) {
+    $data['labels'][] = $row['title'];
+    $data['counts'][] = (int) $row['room_count'];
 }
+
+// Convert the data to JSON format
+$chartData = json_encode($data);
+
+// Daily Booking Trends - Debugging
+$dailyQuery = "SELECT DATE(date) AS appointment_date, COUNT(*) AS appointment_count FROM appointment GROUP BY DATE(date)";
+$dailyResult = mysqli_query($conn, $dailyQuery);
+
+$dailyData = array();
+while ($row = mysqli_fetch_assoc($dailyResult)) {
+    $dailyData['dates'][] = $row['appointment_date'];
+    $dailyData['counts'][] = (int) $row['appointment_count'];
+}
+
+// Weekly Booking Trends - Debugging
+$weeklyQuery = "SELECT DATE(date) AS start_date, COUNT(*) AS appointment_count FROM appointment GROUP BY WEEK(date)";
+$weeklyResult = mysqli_query($conn, $weeklyQuery);
+
+$weeklyData = array();
+while ($row = mysqli_fetch_assoc($weeklyResult)) {
+    $weeklyData['dates'][] = $row['start_date'];
+    $weeklyData['counts'][] = (int) $row['appointment_count'];
+}
+
+// Monthly Booking Trends - Debugging
+$monthlyQuery = "SELECT DATE_FORMAT(date, '%Y-%m') AS appointment_month, COUNT(*) AS appointment_count FROM appointment GROUP BY DATE_FORMAT(date, '%Y-%m')";
+$monthlyResult = mysqli_query($conn, $monthlyQuery);
+
+$monthlyData = array();
+while ($row = mysqli_fetch_assoc($monthlyResult)) {
+    $monthlyData['dates'][] = $row['appointment_month'];
+    $monthlyData['counts'][] = (int) $row['appointment_count'];
+}
+
+// Combine the datasets into a single array
+$trendsData = array(
+    'daily' => $dailyData,
+    'weekly' => $weeklyData,
+    'monthly' => $monthlyData
+);
+
+// Encode the combined data array into JSON
+$trendsDataJson = json_encode($trendsData);
 
 // Prepare the SQL query to fetch all user data except for the user with ID 1
 $sql = "SELECT * FROM appointment";
@@ -120,7 +162,15 @@ if ($result->num_rows > 0) {
 // Close the statement
 $stmt->close();
 ?>
-
+<style>
+    /* CSS to make the canvas responsive on smaller screens */
+    @media (max-width: 600px) {
+        #roomOccupancyChart {
+            width: 100%;
+            height: auto;
+        }
+    }
+</style>
 <title>Dashboard</title>
 <?php
 if (isset($_SESSION['successMessage'])) {
@@ -344,16 +394,19 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
     <hr>
 <?php endif; ?>
 
-<!-- Create a container for the Room Occupancy Analysis Chart -->
-<div id="occupancyChart" class="m-3 m-lg-5">
-    <h2>Room Occupancy Analysis</h2>
-    <canvas id="roomOccupancyChart"></canvas>
-</div>
+<div class="my-5 d-flex justify-content-around">
+    <!-- Create a container for the Room Occupancy Analysis Chart -->
+    <div id="occupancyChart" class="">
+        <h4>Room Occupancy Analysis</h4>
+        <canvas id="roomOccupancyChart"></canvas>
+    </div>
 
-<!-- Create a container for the Daily/Weekly/Monthly Booking Trends Chart -->
-<div id="trendingChart" class="m-3 m-lg-5">
-    <h2>Daily/Weekly/Monthly Booking Trends</h2>
-    <canvas id="bookingTrendsChart"></canvas>
+    <!-- Create a container for the Daily/Weekly/Monthly Booking Trends Chart -->
+    <div id="bookingTrendsChartContainer">
+        <h4>Daily/Weekly/Monthly Booking Trends</h4>
+        <canvas id="bookingTrendsChart" width="400" height="400"></canvas>
+    </div>
+
 </div>
 
 <!-- book appointment Content -->
@@ -671,7 +724,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
         document.getElementById('addRooms').style.display = 'none';
         document.getElementById('addOns').style.display = 'none';
         document.getElementById('occupancyChart').style.display = 'none';
-        document.getElementById('trendingChart').style.display = 'none';
+        document.getElementById('bookingTrendsChartContainer').style.display = 'none';
     }
 
     function hideNavigationContainer() {
@@ -733,56 +786,180 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
         document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php?userId=<?php echo $userId; ?>">Dashboard</a></li><li class="breadcrumb-item active">Add new AddsOn</li></ol>';
     });
 
-    function createRoomOccupancyChart() {
-        const ctx = document.getElementById('roomOccupancyChart').getContext('2d');
-        const roomOccupancyChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: <?= json_encode($roomOccupancyData['labels']) ?>,
-                datasets: <?= json_encode($roomOccupancyData['datasets']) ?>
-        },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true // Start y-axis from zero
-                    }
-                }
-            }
-        });
-    }
+    // Function to generate a color based on the input label
+    function getColor(label) {
+        // Use a hash function to convert the label to a numerical value
+        let hash = 0;
+        for (let i = 0; i < label.length; i++) {
+            hash = label.charCodeAt(i) + ((hash << 5) - hash);
+        }
 
-    // Function to create the Daily/Weekly/Monthly Booking Trends Chart
-    function createBookingTrendsChart() {
-        const ctx = document.getElementById('bookingTrendsChart').getContext('2d');
-        const bookingTrendsChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: <?= json_encode($dailyWeeklyMonthlyData['dates']) ?>,
-                datasets: [{
-                    label: 'Booking Trends',
-                    data: <?= json_encode($dailyWeeklyMonthlyData['counts']) ?>,
-                    fill: false,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2
-                }]
+        // Convert the numerical value to a hexadecimal color code
+        const color = "#" + ((hash & 0x00FFFFFF).toString(16)).toUpperCase();
+
+        // Make sure the color is not too light (adjust as needed)
+        return color.padEnd(7, "0");
+    }
+    // Function to create the doughnut chart
+    function createDoughnutChart(chartData) {
+
+        // Function to generate colors based on the chart data labels
+        function generateColors(labels) {
+            const colors = labels.map(label => getColor(label));
+            return colors;
+        }
+
+        // Data for the doughnut chart
+        const data = {
+            labels: chartData.labels,
+            datasets: [{
+                data: chartData.counts,
+                backgroundColor: generateColors(chartData.labels),
+                hoverBackgroundColor: generateColors(chartData.labels).map(color => adjustColorBrightness(color, -30)),
+                borderWidth: 1,
+            }]
+        };
+
+        // Function to adjust the brightness of a color (same as before)
+        function adjustColorBrightness(color, amount) {
+            const colorCode = color.slice(1);
+            const num = parseInt(colorCode, 16);
+            const R = Math.min(255, Math.max(0, (num >> 16) + amount));
+            const G = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+            const B = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+            const newColor = `#${(0x1000000 + (R << 16) + (G << 8) + B).toString(16).slice(1)}`;
+            return newColor;
+        }
+
+        // Chart options
+        const options = {
+            responsive: false,
+            maintainAspectRatio: false,
+            cutoutPercentage: 50,
+            legend: {
+                display: true,
+                position: "bottom",
             },
-            options: {
-                scales: {
-                    x: {
-                        type: 'time', // Use time scale for x-axis
-                        time: {
-                            unit: 'day' // Display data on a daily basis
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 18 // Adjust the font size for legend labels
                         }
-                    },
-                    y: {
-                        beginAtZero: true // Start y-axis from zero
+                    }
+                },
+                datalabels: {
+                    color: "#fff", // Font color for the labels
+                    font: {
+                        size: function (context) {
+                            // Adjust the font size based on the screen width
+                            const width = context.chart.width;
+                            return width < 400 ? 10 : 14; // Ternary operator to set font size based on width
+                        }
                     }
                 }
             }
+        };
+
+        // Create the doughnut chart
+        const ctx = document.getElementById("roomOccupancyChart").getContext("2d");
+        const myDoughnutChart = new Chart(ctx, {
+            type: "doughnut",
+            data: data,
+            options: options
         });
     }
 
-    // Call the functions to create the charts
-    createRoomOccupancyChart();
-    createBookingTrendsChart();
+    // Function to create the line chart
+    function createLineChart(chartData, timeUnit) {
+        // Get the JSON data from PHP and parse it into a JavaScript object
+        const trendsData = <?php echo $trendsDataJson; ?>;
+
+        // Access the individual datasets as needed
+        const dailyData = trendsData.daily;
+        const weeklyData = trendsData.weekly;
+        const monthlyData = trendsData.monthly;
+        const data = {
+            labels: dailyData.dates,
+            datasets: [
+                {
+                    label: 'Daily',
+                    data: dailyData.counts,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 1,
+                    fill: true,
+                },
+                {
+                    label: 'Weekly',
+                    data: weeklyData.counts,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 1,
+                    fill: true,
+                },
+                {
+                    label: 'Monthly',
+                    data: monthlyData.counts,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderWidth: 1,
+                    fill: true,
+                }
+            ]
+        };
+        // Chart options
+        const options = {
+            responsive: false, // Set to true to enable responsiveness
+            maintainAspectRatio: false, // Set to false to disable maintaining aspect ratio
+            scales: {
+                x: {
+                    type: 'time', // Use time scale for X-axis
+                    time: {
+                        unit: timeUnit, // Display unit: 'day', 'week', or 'month'
+                        displayFormats: {
+                            day: 'MMM d', // Format for daily labels
+                            week: 'MMM d', // Format for weekly labels
+                            month: 'MMM YYYY', // Format for monthly labels
+                        },
+                    },
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 20, // Limit the number of visible ticks
+                    },
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                },
+            },
+        };
+
+        // Create the line chart
+        const ctx = document.getElementById("bookingTrendsChart").getContext("2d");
+        const myLineChart = new Chart(ctx, {
+            type: "line", // Changed the chart type to 'line'
+            data: data,
+            options: options
+        });
+    }
+
+
+    // Inline script to define the data directly in JavaScript
+    var chartData = <?php echo $chartData; ?>;
+    document.addEventListener("DOMContentLoaded", function () {
+        createDoughnutChart(chartData);
+    });
+
+    // Call the createLineChart function with the PHP data for each time interval after page load
+    document.addEventListener("DOMContentLoaded", function () {
+        const dailyData = <?php echo json_encode($dailyData); ?>;
+        createLineChart(dailyData, 'day');
+
+        const weeklyData = <?php echo json_encode($weeklyData); ?>;
+        createLineChart(weeklyData, 'week');
+
+        const monthlyData = <?php echo json_encode($monthlyData); ?>;
+        createLineChart(monthlyData, 'month');
+    });
 </script>

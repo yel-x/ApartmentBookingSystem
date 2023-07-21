@@ -19,6 +19,9 @@
     crossorigin="anonymous"></script>
 <!-- Include Chart.js library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Add the date-fns adapter for Chart.js (latest version) -->
+<script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </body>
 
 </html>
