@@ -394,6 +394,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
     <hr>
 <?php endif; ?>
 
+<!-- chart reports -->
 <div class="my-5 d-flex justify-content-around">
     <!-- Create a container for the Room Occupancy Analysis Chart -->
     <div id="occupancyChart" class="">
@@ -416,10 +417,31 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
     <div class="container mt-3 mb-5 my-lg-5">
         <h1>New User List</h1>
         <div class="table-responsive">
-            <?php if (empty($appointment)): ?> <!-- Check if the $appointment array is empty -->
-                <p>No data available.</p> <!-- Display the "No data available" message -->
+            <?php if (empty($appointment)): ?>
+                <p>No data available.</p>
             <?php else: ?>
-                <table class="table table-striped table-hover table-bordered shadow rounded-5">
+                <?php
+                // Pagination settings
+                $rowsPerPage = 10;
+                $totalRows = count($appointment);
+                $totalPages = ceil($totalRows / $rowsPerPage);
+
+                // Get the current page from the URL query parameter 'page'
+                $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+                $currentPage = max(1, min($currentPage, $totalPages)); // Make sure the current page is within valid range
+            
+                // Calculate the starting index and ending index of data to display on the current page
+                $startIndex = ($currentPage - 1) * $rowsPerPage;
+                $endIndex = min($startIndex + $rowsPerPage, $totalRows);
+
+                // Get the data for the current page
+                $currentPageData = array_slice($appointment, $startIndex, $endIndex - $startIndex);
+
+                // Counter for displaying row numbers
+                $counter = ($currentPage - 1) * $rowsPerPage + 1;
+                ?>
+
+                <table class="table table-striped table-hover table-bordered shadow rounded-5" id="userTable">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -432,10 +454,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        $counter = 1;
-                        foreach ($appointment as $user):
-                            ?>
+                        <?php foreach ($currentPageData as $user): ?>
                             <tr>
                                 <td>
                                     <?php echo $counter++; ?>
@@ -468,6 +487,27 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+
+                <!-- Pagination links -->
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        <?php if ($currentPage > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?php echo $currentPage - 1; ?>">Previous</a>
+                            </li>
+                        <?php endif; ?>
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?php echo ($i === $currentPage) ? 'active' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <?php if ($currentPage < $totalPages): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?php echo $currentPage + 1; ?>">Next</a>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
             <?php endif; ?>
         </div>
     </div>
@@ -635,7 +675,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
     <?php if (empty($userinfocopy)): ?>
         <p>No data available in this table.</p>
     <?php else: ?>
-        <table class="table table-striped table-hover table-bordered shadow rounded-5">
+        <table class="table table-striped table-hover table-bordered shadow rounded-5" id="bookAppointment">
             <thead>
                 <tr>
                     <th>#</th>
@@ -716,6 +756,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
 <div id="addOns" style="display: none;">
     <h2>Add new AddsOn</h2>
 </div>
+
 
 <script>
     function hideAllContent() {
@@ -943,7 +984,6 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
             options: options
         });
     }
-
 
     // Inline script to define the data directly in JavaScript
     var chartData = <?php echo $chartData; ?>;
