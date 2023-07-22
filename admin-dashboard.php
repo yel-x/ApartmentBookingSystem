@@ -68,29 +68,6 @@ if (isset($_POST['appointmentID'])) {
 
     $stmt->close();
 }
-// Room Occupancy Analysis - Count the number of appointments for each room
-$roomOccupancyQuery = "SELECT title, COUNT(*) AS room_count FROM appointment GROUP BY title";
-$roomOccupancyResult = mysqli_query($conn, $roomOccupancyQuery);
-
-$roomOccupancyData = array(
-    'labels' => array(),
-    'datasets' => array()
-);
-
-while ($row = mysqli_fetch_assoc($roomOccupancyResult)) {
-    $roomOccupancyData['labels'][] = $row['title'];
-
-    $dataset = array(
-        'label' => $row['title'],
-        'data' => array((int) $row['room_count']),
-        'backgroundColor' => 'rgba(' . rand(0, 255) . ', ' . rand(0, 255) . ', ' . rand(0, 255) . ', 0.2)',
-        'borderColor' => 'rgba(' . rand(0, 255) . ', ' . rand(0, 255) . ', ' . rand(0, 255) . ', 1)',
-        'borderWidth' => 1
-    );
-
-    $roomOccupancyData['datasets'][] = $dataset;
-}
-
 $roomOccupancyQuery = "SELECT title, COUNT(*) AS room_count FROM appointment GROUP BY title";
 $roomOccupancyResult = mysqli_query($conn, $roomOccupancyQuery);
 
@@ -143,31 +120,22 @@ $trendsData = array(
 
 // Encode the combined data array into JSON
 $trendsDataJson = json_encode($trendsData);
-
-// Prepare the SQL query to fetch all user data except for the user with ID 1
-$sql = "SELECT * FROM appointment";
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-
-// Get the result set from the executed statement
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    // Loop through the result set and fetch each row as an associative array
-    while ($row = $result->fetch_assoc()) {
-        // Append each row to the $appointment array
-        $appointment[] = $row;
-    }
-}
-// Close the statement
-$stmt->close();
 ?>
 <style>
+    #bookingTrendsChartContainer {
+        overflow-x: scroll;
+    }
+
+    #bookingTrendsChart {
+        width: 100%;
+        height: auto;
+    }
+
     /* CSS to make the canvas responsive on smaller screens */
     @media (max-width: 600px) {
-        #roomOccupancyChart {
-            width: 100%;
-            height: auto;
+        #bookingTrendsChart {
+            width: 400px;
+            height: 400px;
         }
     }
 </style>
@@ -395,267 +363,51 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
 <?php endif; ?>
 
 <!-- chart reports -->
-<div class="my-5 d-flex justify-content-around">
+<div id="chartReports">
     <!-- Create a container for the Room Occupancy Analysis Chart -->
-    <div id="occupancyChart" class="">
-        <h4>Room Occupancy Analysis</h4>
-        <canvas id="roomOccupancyChart"></canvas>
+    <div class="mb-5 d-flex justify-content-center"> <!-- Apply d-flex and justify-content-center classes here -->
+        <div>
+            <h4>Room Occupancy Analysis</h4>
+            <canvas id="roomOccupancyChart"></canvas>
+        </div>
     </div>
-
     <!-- Create a container for the Daily/Weekly/Monthly Booking Trends Chart -->
-    <div id="bookingTrendsChartContainer">
+    <div class="mx-3" id="bookingTrendsChartContainer">
         <h4>Daily/Weekly/Monthly Booking Trends</h4>
-        <canvas id="bookingTrendsChart" width="400" height="400"></canvas>
+        <canvas id="bookingTrendsChart"></canvas>
     </div>
-
 </div>
+
+
+
 
 <!-- book appointment Content -->
 <div id="userTable" <?php if (!$isUserTable)
     echo 'style="display: none;"'; ?>>
-    <!-- table -->
+    <!-- New user table -->
     <div class="container mt-3 mb-5 my-lg-5">
         <h1>New User List</h1>
-        <div class="table-responsive">
-            <?php if (empty($appointment)): ?>
-                <p>No data available.</p>
-            <?php else: ?>
-                <?php
-                // Pagination settings
-                $rowsPerPage = 10;
-                $totalRows = count($appointment);
-                $totalPages = ceil($totalRows / $rowsPerPage);
-
-                // Get the current page from the URL query parameter 'page'
-                $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-                $currentPage = max(1, min($currentPage, $totalPages)); // Make sure the current page is within valid range
-            
-                // Calculate the starting index and ending index of data to display on the current page
-                $startIndex = ($currentPage - 1) * $rowsPerPage;
-                $endIndex = min($startIndex + $rowsPerPage, $totalRows);
-
-                // Get the data for the current page
-                $currentPageData = array_slice($appointment, $startIndex, $endIndex - $startIndex);
-
-                // Counter for displaying row numbers
-                $counter = ($currentPage - 1) * $rowsPerPage + 1;
-                ?>
-
-                <table class="table table-striped table-hover table-bordered shadow rounded-5" id="userTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>Room Name</th>
-                            <th>Schedule</th>
-                            <th>Operation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($currentPageData as $user): ?>
-                            <tr>
-                                <td>
-                                    <?php echo $counter++; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['fName']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['lName']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['email']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['title']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['date']; ?>
-                                </td>
-                                <td>
-                                    <form action="admin-dashboard.php" method="post">
-                                        <input type="hidden" name="userId" value="<?php echo $user['aID']; ?>">
-                                        <button type="submit" class="btn btn-danger rounded-pill btn-sm p-2 mb-2 mb-lg-0"
-                                            name="moveToOngoing">Ongoing</button>
-                                        <button type="submit" class="btn btn-success rounded-pill btn-sm p-2  mb-lg-0"
-                                            name="moveToCompleteFromUserInfo">Complete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-
-                <!-- Pagination links -->
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-center">
-                        <?php if ($currentPage > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<?php echo $currentPage - 1; ?>">Previous</a>
-                            </li>
-                        <?php endif; ?>
-                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                            <li class="page-item <?php echo ($i === $currentPage) ? 'active' : ''; ?>">
-                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
-                            </li>
-                        <?php endfor; ?>
-                        <?php if ($currentPage < $totalPages): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<?php echo $currentPage + 1; ?>">Next</a>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </nav>
-            <?php endif; ?>
+        <div class="table-responsive" id="paginationContainer">
+            <!-- The table and pagination will be loaded here using AJAX -->
         </div>
     </div>
 
     <!-- Ongoing Table -->
     <div class="container mb-5">
         <h1>Ongoing</h1>
-        <div class="table-responsive">
-            <?php if (empty($ongoingUser)): ?> <!-- Check if the $ongoingUser array is empty -->
-                <p>No data available.</p> <!-- Display the "No data available" message -->
-            <?php else: ?>
-                <table class="table table-striped table-hover table-bordered shadow rounded-5">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>Room Name</th>
-                            <th>Schedule</th>
-                            <th>Operation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $counter = 1;
-                        foreach ($ongoingUser as $user):
-                            ?>
-                            <tr>
-                                <td>
-                                    <?php echo $counter++; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['fName']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['lName']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['email']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['title']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['date']; ?>
-                                </td>
-                                <td>
-                                    <form action="admin-dashboard.php" method="post">
-                                        <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
-                                        <button type="submit" class="btn btn-success rounded-pill btn-sm m-2"
-                                            name="moveToCompleteFromOngoing">Complete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
+        <div class="table-responsive" id="paginationContainerOngoing">
+            <!-- The ongoing table and pagination will be loaded here using AJAX -->
         </div>
     </div>
 
     <!-- Complete Table -->
-    <div class="container mt-3 mb-5 my-lg-5">
+    <div class="container mb-5">
         <h1>Complete</h1>
-        <div class="table-responsive">
-            <?php if (empty($completeUser)): ?> <!-- Check if the $completeUser array is empty -->
-                <p>No data available.</p> <!-- Display the "No data available" message -->
-            <?php else: ?>
-                <table class="table table-striped table-hover table-bordered shadow rounded-5">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>Room Name</th>
-                            <th>Schedule</th>
-                            <th>Operation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $counter = 1;
-                        foreach ($completeUser as $user):
-                            ?>
-                            <tr>
-                                <td>
-                                    <?php echo $counter++; ?>
-                                </td>
-
-                                <td>
-                                    <?php echo $user['fName']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['lName']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['email']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['title']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $user['date']; ?>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
-                                        data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
-                                        Delete
-                                    </button>
-
-                                    <!-- Delete Confirmation Modal -->
-                                    <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
-                                        aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm
-                                                        Deletion
-                                                    </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p>Are you sure you want to delete this row?</p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Cancel</button>
-                                                    <form action="admin-dashboard.php" method="post">
-                                                        <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
-                                                        <button type="submit" class="btn btn-danger"
-                                                            name="deleteFromComplete">Delete</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
+        <div class="table-responsive" id="paginationContainerComplete">
+            <!-- The complete table and pagination will be loaded here using AJAX -->
         </div>
     </div>
+
     <?php
     // Check if a message is present in the session
     if (isset($_SESSION['message'])) {
@@ -757,6 +509,93 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
     <h2>Add new AddsOn</h2>
 </div>
 
+<script>
+    // Function to load the next page content for new user table via AJAX
+    function loadNextPage(page) {
+        $.ajax({
+            url: 'pagination/pagination_script.php', // Replace with the URL of your PHP script that generates the next page content
+            data: { page: page },
+            type: 'GET',
+            dataType: 'html',
+            success: function (data) {
+                console.log(data); // Log the received data to the console for debugging
+                $('#paginationContainer').html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
+    // Attach a click event to the pagination links
+    $(document).on('click', '.page-link', function (event) {
+        event.preventDefault();
+        var nextPage = $(this).attr('href').split('?page=')[1];
+        loadNextPage(nextPage);
+    });
+
+    // Initial loading of the first page on page load
+    $(document).ready(function () {
+        loadNextPage(1);
+    });
+
+    // Function to load the next page content via AJAX for the ongoing table
+    function loadOngoingTable(page) {
+        $.ajax({
+            url: 'pagination/pagination_ongoing_script.php', // Use the same PHP script URL that works for the first table
+            data: { page: page },
+            type: 'GET',
+            dataType: 'html',
+            success: function (data) {
+                $('#paginationContainerOngoing').html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
+    // Attach a click event to the pagination links for the ongoing table
+    $(document).on('click', '#paginationContainerOngoing .page-link', function (event) {
+        event.preventDefault();
+        var nextPage = $(this).attr('href').split('?page=')[1];
+        loadOngoingTable(nextPage);
+    });
+
+    // Initial loading of the first page for the ongoing table on page load
+    $(document).ready(function () {
+        loadOngoingTable(1);
+    });
+
+    // Function to load the next page content via AJAX for the complete table
+    function loadCompleteTable(page) {
+        $.ajax({
+            url: 'pagination/pagination_complete_script.php', // Replace with the correct file path
+            data: { page: page },
+            type: 'GET',
+            dataType: 'html',
+            success: function (data) {
+                $('#paginationContainerComplete').html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
+    // Attach a click event to the pagination links for the complete table
+    $(document).on('click', '#paginationContainerComplete .page-link', function (event) {
+        event.preventDefault();
+        var nextPage = $(this).attr('href').split('?page=')[1];
+        loadCompleteTable(nextPage);
+    });
+
+    // Initial loading of the first page for the complete table on page load
+    $(document).ready(function () {
+        loadCompleteTable(1);
+    });
+
+</script>
 
 <script>
     function hideAllContent() {
@@ -764,8 +603,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
         document.getElementById('bookAppointment').style.display = 'none';
         document.getElementById('addRooms').style.display = 'none';
         document.getElementById('addOns').style.display = 'none';
-        document.getElementById('occupancyChart').style.display = 'none';
-        document.getElementById('bookingTrendsChartContainer').style.display = 'none';
+        document.getElementById('chartReports').style.display = 'none';
     }
 
     function hideNavigationContainer() {
@@ -843,7 +681,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
     }
     // Function to create the doughnut chart
     function createDoughnutChart(chartData) {
-
+        console.log(chartData.labels);
         // Function to generate colors based on the chart data labels
         function generateColors(labels) {
             const colors = labels.map(label => getColor(label));
@@ -971,7 +809,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
                 },
                 y: {
                     beginAtZero: true,
-                    max: 100
+                    max: 20
                 },
             },
         };
