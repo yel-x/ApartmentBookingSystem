@@ -60,8 +60,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
   // If there are no validation errors, proceed with the insert operation
   if (empty($firstNameError) && empty($emailError) && empty($lastNameError) && empty($pfPictureError) && empty($passwordError) && empty($cPasswordError)) {
-    $sql = "INSERT INTO `userInfo` (fName, email, lName, pfPicture, password, cPassword) VALUES ('$firstName', '$email', '$lastName','$pfPicture', '$password', '$cPassword')";
-    $result = mysqli_query($conn, $sql);
+    // Hash the password
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    $sql = "INSERT INTO `userInfo` (fName, email, lName, pfPicture, password, cPassword) VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssssss", $firstName, $email, $lastName, $pfPicture, $hashedPassword, $hashedPassword);
+    $result = $stmt->execute();
+    $stmt->close();
+
     if ($result) {
       header('location: login.php');
       exit; // Stop further execution

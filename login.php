@@ -1,13 +1,14 @@
 <?php
-include 'components/connect.php';
+require 'components/connect.php';
 
-// Retrieve the form data
+// Initialize variables
 $emailError = $passwordError = '';
 $email = $password = '';
 $loginError = '';
 
-
-if (isset($_POST['email']) && isset($_POST['password'])) {
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_POST['password'])) {
+  // Retrieve the form data
   $email = $_POST['email'];
   $password = $_POST['password'];
 
@@ -16,29 +17,36 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
     $emailError = "Invalid email format.";
   }
 
-  // Validate password
-  if (strlen($password) < 12) {
-    $passwordError = "Password must be at least 12 characters long.";
-  }
-
   // If there are no validation errors, proceed with the login operation
-  if (empty($emailError) && empty($passwordError)) {
-    // Perform the login query
-    $sql = "SELECT id FROM userInfo WHERE email = '$email' AND password = '$password'";
-    $result = $conn->query($sql);
+  if (empty($emailError)) {
+    // Prepare the login query using prepared statement
+    $query = "SELECT id, password FROM userInfo WHERE email = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-      // Login successful
+      // Email exists, retrieve user data
       $row = $result->fetch_assoc();
-      $userId = $row['id'];
+      $hashed_password = $row['password'];
 
-      header("Location: index.php?userId=" . urlencode($userId));
-      exit; // Stop further execution
+      // Verify the user's input password against the hashed password in the database
+      if (password_verify($password, $hashed_password)) {
+        // Passwords match, user is logged in
+        header("Location: index.php?userId=" . urlencode($row['id']));
+        exit; // Stop further execution
+      } else {
+        // Passwords don't match, login failed
+        $loginError = "Invalid email or password.";
+      }
     } else {
-      // Login failed
+      // Email not found in the database
       $loginError = "Invalid email or password.";
     }
-    $conn->close();
+
+    // Close the prepared statement
+    $stmt->close();
   }
 }
 
@@ -59,6 +67,20 @@ require 'components/navbar.php';
         </div>
         <div class="col-12 col-md-8">
           <div class="card-body">
+            <?php
+            // Display success message if applicable
+            if (isset($success_message)) {
+              echo '<div class="alert alert-success"  id="successMessage">' . $success_message . '</div>';
+            }
+            ?>
+            <?php
+            // Check if the success message exists in the URL parameters
+            if (isset($_GET['successMessage'])) {
+              // Retrieve the success message and display it
+              $successMessage = $_GET['successMessage'];
+              echo '<div class="alert alert-success" role="alert"  id="successMessage">' . htmlspecialchars($successMessage) . '</div>';
+            }
+            ?>
             <h5 class="card-title text-center p-lg-3">LOG IN</h5>
             <?php if (!empty($loginError)): ?>
               <div class="alert alert-danger">
@@ -93,7 +115,9 @@ require 'components/navbar.php';
                     <?php echo $passwordError; ?>
                   </div>
                 </div>
-
+                <div>
+                  <a href="fPassword.php">Forgot Password?</a>
+                </div>
               </div>
               <div class="d-flex justify-content-end">
                 <button type="submit" class="btn m-3 btn-outline-danger rounded-5">Log in</button>
@@ -107,6 +131,22 @@ require 'components/navbar.php';
         </div>
       </div>
     </div>
+    <script>
+      // Function to hide the success message after 3 seconds
+      function hideSuccessMessage() {
+        var successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+          setTimeout(function () {
+            successMessage.style.opacity = '0';
+            setTimeout(function () {
+              successMessage.style.display = 'none';
+            }, 1000);
+          }, 3000); // 3000 milliseconds (3 seconds)
+        }
+      }
+      // Call the hideSuccessMessage function when the page is loaded
+      window.addEventListener('load', hideSuccessMessage);
+    </script>
     <script>
       function togglePasswordVisibility() {
         var passwordInput = document.getElementById("inputPassword");

@@ -2,7 +2,8 @@
 include 'components/retrieve.php';
 
 $fNameError = $lNameError = $emailError = $passwordError = $cPasswordError = $pfPictureError = '';
-// = $pfPictureError
+$errorMessage = ''; // Initialize error message variable
+
 if (isset($_POST['submit']) || isset($_POST['userId'])) {
     $userId = $_GET['userId'];
     $fName = $_POST['fName'];
@@ -32,22 +33,11 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
         $emailError = 'Invalid email format.';
     }
 
-    // Validate password
-    if (strlen($password) < 12) {
-        $passwordError = 'Password should have at least 12 characters.';
-    }
-
-    // Validate confirm password
-    if ($password !== $cPassword) {
-        $cPasswordError = 'Passwords do not match.';
-    }
-
     // Validate profile picture
     if ($_FILES['pfPicture']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = "uploads/"; // Directory to store uploaded images
+        $uploadDir = "uploads/";
         $uploadFile = $uploadDir . basename($_FILES['pfPicture']['name']);
 
-        // Move the uploaded file to the specified directory
         if (move_uploaded_file($_FILES['pfPicture']['tmp_name'], $uploadFile)) {
             $newPicture = $uploadFile;
 
@@ -69,28 +59,63 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
                         unlink($oldPicture);
                     }
                 } else {
-                    // Handle the error case if updating the picture path fails
+                    $errorMessage = "An error occurred while updating the profile picture.";
+                    error_log("Query Error: " . mysqli_error($conn));
                 }
+            } else {
+                // Initialize $oldPicture with some default value if profile picture update is not performed
+                $oldPicture = "path/to/old/picture.jpg";
             }
         }
-    } else {
-        $newPicture = $oldPicture; // Keep the old picture if no new picture is uploaded
     }
+    // If there are no validation errors for non-password fields, update the user information
+    if (empty($fNameError) && empty($lNameError) && empty($emailError)) {
+        // Validate password if provided
+        if (!empty($password) || !empty($cPassword)) {
+            // Validate password length
+            if (strlen($password) < 12) {
+                $passwordError = 'Password should have at least 12 characters.';
+            }
 
-    // If there are no validation errors, update the user information
-    if (empty($fNameError) && empty($lNameError) && empty($emailError) && empty($passwordError) && empty($cPasswordError)) {
-        $sql = "UPDATE `userInfo` SET fName='$fName', lName='$lName', email='$email', password='$password', cPassword='$cPassword' WHERE id=$userId";
-        $result = mysqli_query($conn, $sql);
-        if ($result) {
-            header("Location: account.php?userId=" . urlencode($userId) . "&successMessage=" . urlencode($successMessage));
-            exit; // Stop further processing
+            // Validate confirm password
+            if ($password !== $cPassword) {
+                $cPasswordError = 'Passwords do not match.';
+            }
+        }
+
+        // If there are no password validation errors, update the user information
+        if (empty($passwordError) && empty($cPasswordError)) {
+            // Use a separate query to update non-password fields
+            $updateSql = "UPDATE userInfo SET fName='$fName', lName='$lName', email='$email' WHERE id=$userId";
+            $result = mysqli_query($conn, $updateSql);
+
+            // Handle password updates if both passwords are provided
+            if (!empty($password) && !empty($cPassword)) {
+                // Hash the passwords before updating in the database
+                $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+                $hashedCPassword = password_hash($cPassword, PASSWORD_BCRYPT);
+
+                // Use a separate query to update password fields
+                $updatePasswordSql = "UPDATE userInfo SET password='$hashedPassword', cPassword='$hashedCPassword' WHERE id=$userId";
+                $resultPassword = mysqli_query($conn, $updatePasswordSql);
+
+                if (!$resultPassword) {
+                    // Handle password update failure
+                    $errorMessage = "An error occurred while updating the password.";
+                    error_log("Query Error: " . mysqli_error($conn));
+                }
+            }
+
+            // Redirect to success page if non-password fields were successfully updated
+            if ($result) {
+                header("Location: account.php?userId=" . urlencode($userId) . "&successMessage=" . urlencode($successMessage));
+                exit; // Stop further processing
+            }
         }
     }
+
 }
-
-
 ?>
-
 <?php
 require 'components/navbar.php';
 ?>
@@ -98,6 +123,11 @@ require 'components/navbar.php';
 </head>
 
 <div class="container-lg my-3 my-md-5 col-10 col-md-6 shadow p-3 p-md-5 rounded-3 rounded-md-5">
+    <?php if (!empty($errorMessage)): ?>
+        <div class="alert alert-danger" role="alert">
+            <?php echo $errorMessage; ?>
+        </div>
+    <?php endif; ?>
     <form method="post" enctype="multipart/form-data">
         <h5 class="card-title text-center p-3  mb-3">Updating userID no.
             <strong class="fw-bold text-decoration-underline">
@@ -152,8 +182,7 @@ require 'components/navbar.php';
             <label for="inputPassword" class="form-label">Password</label>
             <div class="input-group">
                 <input type="password" id="inputPassword" class="form-control <?php if (!empty($passwordError))
-                    echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock"
-                    value="<?php echo htmlspecialchars($password); ?>" name="password">
+                    echo 'is-invalid'; ?>" aria-labelledby="passwordHelpBlock" name="password">
                 <!-- close eye -->
                 <span class="input-group-text rounded-end toggle-icon" id="togglePassword"
                     onclick="togglePasswordVisibility()">
@@ -165,14 +194,14 @@ require 'components/navbar.php';
                     </div>
                 <?php endif; ?>
             </div>
-
         </div>
+
         <!-- cPassword update -->
         <div class="mb-3">
             <label for="confirmPassword" class="form-label">Confirm Password</label>
-            <div class="input-group"> <input type="password" id="confirmPassword" class="form-control <?php if (!empty($cPasswordError))
-                echo 'is-invalid'; ?>" aria-labelledby="confirmpasswordHelpBlock"
-                    value="<?php echo htmlspecialchars($cPassword); ?>" name="cPassword">
+            <div class="input-group">
+                <input type="password" id="confirmPassword" class="form-control <?php if (!empty($cPasswordError))
+                    echo 'is-invalid'; ?>" aria-labelledby="confirmpasswordHelpBlock" name="cPassword">
                 <!-- open eye -->
                 <span class="input-group-text rounded-end toggle-icon" id="togglePassword" onclick="toggleCPass()">
                     <i id="toggleIconCPass" class="fas fa-eye-slash"></i>
@@ -183,8 +212,8 @@ require 'components/navbar.php';
                     </div>
                 <?php endif; ?>
             </div>
-
         </div>
+
         <div class="d-flex justify-content-end align-items-center mt-5">
             <button type="button" class="btn btn-secondary btn-sm me-3 p-2 rounded-pill">
                 <a href="account.php?userId=<?php echo $userId; ?>" class="text-white text-decoration-none">Cancel</a>
@@ -193,6 +222,7 @@ require 'components/navbar.php';
         </div>
     </form>
 </div>
+
 <script> function togglePasswordVisibility() {
         var passwordInput = document.getElementById("inputPassword");
         var toggleIcon = document.getElementById("toggleIcon");
