@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 10, 2023 at 04:19 AM
+-- Generation Time: Jul 25, 2023 at 12:06 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -24,6 +24,60 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `addson`
+--
+
+CREATE TABLE `addson` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `picture` longtext NOT NULL,
+  `description` longtext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `addson`
+--
+
+INSERT INTO `addson` (`id`, `title`, `picture`, `description`) VALUES
+(1, 'AddsOn 1', 'uploads\\alhaitham-birthday-art-genshinimpact.jpg', 'Lorem'),
+(2, 'Adds on 2', 'uploads\\F0kQliLXsAEi8ic.jpg', 'lor'),
+(3, 'Adds on 3', 'uploads\\GenshinImpact_YaeMikoWallpaper4.jpg', 'lor'),
+(4, 'addson 4', 'uploads\\kaveh-kit-genshin-impact.jpeg', 'lor'),
+(5, 'adds on 5', 'uploads\\pexels-thorsten-technoman-338504.jpg', 'lor'),
+(6, 'adds on 6', 'uploads\\Screenshot_2022-12-10_192218.jpg', 'lor'),
+(7, 'adds on 7', 'uploads\\Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'lor');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `appointment`
+--
+
+CREATE TABLE `appointment` (
+  `aID` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `fName` varchar(255) NOT NULL,
+  `lName` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  `addOn` varchar(255) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `appointment`
+--
+DELIMITER $$
+CREATE TRIGGER `tr_copy_appointment_to_toastnotif` AFTER INSERT ON `appointment` FOR EACH ROW BEGIN
+    INSERT INTO toastnotif (aID, fName, lName, title, email, date, addOn, timestamp)
+    VALUES (NEW.aID, NEW.fName, NEW.lName, NEW.title, NEW.email, NEW.date, NEW.addOn, NEW.timestamp);
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `complete`
 --
 
@@ -32,8 +86,8 @@ CREATE TABLE `complete` (
   `fName` varchar(255) NOT NULL,
   `lName` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `dateModified` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `title` varchar(255) NOT NULL,
+  `date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -47,16 +101,50 @@ CREATE TABLE `ongoing` (
   `fName` varchar(255) NOT NULL,
   `lName` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `dateModified` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `title` varchar(255) NOT NULL,
+  `date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rooms`
+--
+
+CREATE TABLE `rooms` (
+  `rID` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `picture` longtext NOT NULL,
+  `description` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `ongoing`
+-- Dumping data for table `rooms`
 --
 
-INSERT INTO `ongoing` (`id`, `fName`, `lName`, `email`, `password`, `dateModified`) VALUES
-(50, 'Ariel', 'Nazareno', 'arielnazareno@gmail.com', 'arielnazareno16', '2023-07-10 02:02:34');
+INSERT INTO `rooms` (`rID`, `title`, `picture`, `description`) VALUES
+(2, 'Room 300', 'uploads\\kaveh-kit-genshin-impact.jpeg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed egestas tristique porta. Nulla consectetur nibh libero, quis venenatis libero tristique.'),
+(3, 'Room 208', 'uploads/pexels-thorsten-technoman-338504.jpg\r\n', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed egestas tristique porta. Nulla consectetur nibh libero, quis venenatis libero tristique.'),
+(4, 'Room 101', 'uploads/pexels-thorsten-technoman-338504.jpg\nuploads/GenshinImpact_YaeMikoWallpaper4.jpg\nuploads/Screenshot 2022-12-10 192218.jpg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed egestas tristique porta. Nulla consectetur nibh libero, quis venenatis libero tristique.'),
+(5, 'Room 202', 'uploads\\Screenshot_2022-12-10_192218.jpg', 'lor');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `toastnotif`
+--
+
+CREATE TABLE `toastnotif` (
+  `toastID` int(11) NOT NULL,
+  `aID` int(11) DEFAULT NULL,
+  `fName` varchar(255) DEFAULT NULL,
+  `lName` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `addOn` varchar(255) DEFAULT NULL,
+  `timestamp` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -80,14 +168,7 @@ CREATE TABLE `userinfo` (
 --
 
 INSERT INTO `userinfo` (`id`, `fName`, `lName`, `pfPicture`, `email`, `password`, `cPassword`, `timestamp`) VALUES
-(1, 'admin', '123', '', 'admin@gmail.com', 'admin123456789', 'admin123456789', '2023-07-08 15:04:00'),
-(26, 'Miko', 'Yae', 'uploads/GenshinImpact_YaeMikoWallpaper4.jpg', 'miko@gmail.com', 'yaeyaemiko12345', 'yaeyaemiko12345', '2023-07-09 13:25:30'),
-(28, 'AlHaitham', 'Abu', 'uploads/alhaitham-birthday-art-genshinimpact.jpg', 'haitham@gmail.com', 'onlyforkavehveh23', 'onlyforkavehveh23', '2023-07-09 04:13:24'),
-(30, 'Kaveh', 'Nannn', 'uploads/kaveh-kit-genshin-impact.jpeg', 'kavskibebe@gmail.com', 'alhaithambentetres', 'alhaithambentetres', '2023-07-09 13:22:19'),
-(49, 'Genesis', 'Medina', 'uploads/Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'c@g.com', 'genesis123456789', 'genesis123456789', '2023-07-09 13:27:51'),
-(50, 'Ariel', 'Nazareno', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1 .jpeg', 'arielnazareno@gmail.com', 'arielnazareno16', 'arielnazareno16', '2023-07-10 01:20:11'),
-(51, 'Wilmer', 'Abiera', 'uploads/kaveh-kit-genshin-impact.jpeg', 'john@gmail.com', 'wilmer123456789', 'wilmer123456789', '2023-07-10 01:42:15'),
-(52, 'Yel', 'Nazareno', 'uploads/kaveh-kit-genshin-impact.jpeg', 'arielnazareno@yahoo.com', 'arielnazareno16', 'arielnazareno16', '2023-07-10 02:00:27');
+(1, 'admin', '123', '', 'admin@gmail.com', 'admin123456789', 'admin123456789', '2023-07-08 15:04:00');
 
 --
 -- Triggers `userinfo`
@@ -118,16 +199,20 @@ CREATE TABLE `userinfocopy` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `userinfocopy`
---
-
-INSERT INTO `userinfocopy` (`id`, `fName`, `lName`, `email`, `password`, `pfPicture`, `cPassword`, `timestamp`) VALUES
-(51, 'Wilmer', 'Abiera', 'john@gmail.com', 'wilmer123456789', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1 .jpeg', 'wilmer123456789', '2023-07-10 01:41:43'),
-(52, 'Yel', 'Nazareno', 'arielnazareno@yahoo.com', 'arielnazareno16', 'uploads/kaveh-kit-genshin-impact.jpeg', 'arielnazareno16', '2023-07-10 02:00:27');
-
---
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `addson`
+--
+ALTER TABLE `addson`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `appointment`
+--
+ALTER TABLE `appointment`
+  ADD PRIMARY KEY (`aID`);
 
 --
 -- Indexes for table `complete`
@@ -140,6 +225,18 @@ ALTER TABLE `complete`
 --
 ALTER TABLE `ongoing`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `rooms`
+--
+ALTER TABLE `rooms`
+  ADD PRIMARY KEY (`rID`);
+
+--
+-- Indexes for table `toastnotif`
+--
+ALTER TABLE `toastnotif`
+  ADD PRIMARY KEY (`toastID`);
 
 --
 -- Indexes for table `userinfo`
@@ -158,22 +255,46 @@ ALTER TABLE `userinfocopy`
 --
 
 --
+-- AUTO_INCREMENT for table `addson`
+--
+ALTER TABLE `addson`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `appointment`
+--
+ALTER TABLE `appointment`
+  MODIFY `aID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=339;
+
+--
 -- AUTO_INCREMENT for table `complete`
 --
 ALTER TABLE `complete`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=339;
 
 --
 -- AUTO_INCREMENT for table `ongoing`
 --
 ALTER TABLE `ongoing`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=329;
+
+--
+-- AUTO_INCREMENT for table `rooms`
+--
+ALTER TABLE `rooms`
+  MODIFY `rID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `toastnotif`
+--
+ALTER TABLE `toastnotif`
+  MODIFY `toastID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=262;
 
 --
 -- AUTO_INCREMENT for table `userinfo`
 --
 ALTER TABLE `userinfo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
