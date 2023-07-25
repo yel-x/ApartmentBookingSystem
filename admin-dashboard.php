@@ -1,9 +1,6 @@
 <?php
 require 'components/move.php';
 require 'components/navbar.php';
-require 'components/retrieveOngoing.php';
-require 'components/retrieveComplete.php';
-require 'components/retrieveAppointment.php';
 require 'components/retrieveNotif.php';
 require 'components/retrieveCopy.php';
 
@@ -299,9 +296,9 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
             <?php elseif ($isBookAppointment): ?>
                 User Table
             <?php elseif ($isAddRooms): ?>
-                Add new Rooms
+                Rooms
             <?php elseif ($isAddAddsOn): ?>
-                Add new AddsOn
+                AddsOn
             <?php endif; ?>
         </li>
     </ol>
@@ -342,7 +339,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
                         class="bi bi-plus-lg m-1" viewBox="0 0 16 16">
                         <path fill-rule="evenodd"
                             d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
-                    </svg>Add New
+                    </svg>
                     Rooms</a>
             </div>
             <div class="col col-12 col-md-6 mb-5">
@@ -354,7 +351,6 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
                         <path fill-rule="evenodd"
                             d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
                     </svg>
-                    Add
                     AddsOn</a>
             </div>
         </div>
@@ -377,9 +373,6 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
         <canvas id="bookingTrendsChart"></canvas>
     </div>
 </div>
-
-
-
 
 <!-- book appointment Content -->
 <div id="userTable" <?php if (!$isUserTable)
@@ -501,12 +494,15 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
 </div>
 
 <!-- Add rooms content -->
-<div id="addRooms" style="display: none;">
-    <h2>Add new Rooms</h2>
+<div id="addRooms" class="container mt-3 mb-5 my-lg-5" <?php if (!$isAddRooms)
+    echo 'style="display: none;"'; ?>>
+    <?php include 'addRooms.php'; ?>
 </div>
+
 <!-- Add addsOn content -->
-<div id="addOns" style="display: none;">
-    <h2>Add new AddsOn</h2>
+<div id="addOns" class="container mt-3 mb-5 my-lg-5" <?php if (!$isAddAddsOn)
+    echo 'style="display: none;"'; ?>>
+    <?php include 'addOns.php'; ?>
 </div>
 
 <script>
@@ -518,7 +514,6 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
             type: 'GET',
             dataType: 'html',
             success: function (data) {
-                console.log(data); // Log the received data to the console for debugging
                 $('#paginationContainer').html(data);
             },
             error: function (xhr, status, error) {
@@ -542,11 +537,12 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
     // Function to load the next page content via AJAX for the ongoing table
     function loadOngoingTable(page) {
         $.ajax({
-            url: 'pagination/pagination_ongoing_script.php', // Use the same PHP script URL that works for the first table
+            url: 'pagination/pagination_ongoing_script.php', //
             data: { page: page },
             type: 'GET',
             dataType: 'html',
             success: function (data) {
+
                 $('#paginationContainerOngoing').html(data);
             },
             error: function (xhr, status, error) {
@@ -652,7 +648,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
         hideNavigationContainer();
         showNav('addRoomsLink');
         document.getElementById('addRooms').style.display = 'block';
-        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php?userId=<?php echo $userId; ?>">Dashboard</a></li><li class="breadcrumb-item active">Add new Rooms</li></ol>';
+        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php?userId=<?php echo $userId; ?>">Dashboard</a></li><li class="breadcrumb-item active">Rooms</li></ol>';
     });
 
     document.getElementById('addOnsLink').addEventListener('click', function (event) {
@@ -662,7 +658,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
         hideNavigationContainer();
         showNav('addOnsLink');
         document.getElementById('addOns').style.display = 'block';
-        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php?userId=<?php echo $userId; ?>">Dashboard</a></li><li class="breadcrumb-item active">Add new AddsOn</li></ol>';
+        document.getElementById('breadcrumbs').innerHTML = '<ol class="breadcrumb ms-5"><li class="breadcrumb-item"><a href="admin-dashboard.php?userId=<?php echo $userId; ?>">Dashboard</a></li><li class="breadcrumb-item active">AddsOn</li></ol>';
     });
 
     // Function to generate a color based on the input label
@@ -681,7 +677,6 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
     }
     // Function to create the doughnut chart
     function createDoughnutChart(chartData) {
-        console.log(chartData.labels);
         // Function to generate colors based on the chart data labels
         function generateColors(labels) {
             const colors = labels.map(label => getColor(label));

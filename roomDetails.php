@@ -69,7 +69,6 @@ $pictureUrls = ($picture !== '') ? array_filter(explode("\n", $picture), 'trim')
                                     aria-label="Slide <?php echo $i + 1; ?>"></button>
                             <?php endfor; ?>
                         </div>
-
                         <div class="carousel-inner">
                             <?php for ($i = 0; $i < count($pictureUrls); $i++): ?>
                                 <div class="carousel-item <?php echo ($i === 0) ? 'active' : ''; ?>">

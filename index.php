@@ -1,6 +1,7 @@
 <?php
 require 'components/retrieve.php';
 require 'components/retrieveRooms.php';
+require 'components/retrieveAddsOn.php';
 require 'components/layout.php';
 
 // Assuming $roomNumber contains the room number for each iteration
@@ -149,36 +150,23 @@ $evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
         provident!
       </p>
       <div class="addson d-flex justify-content-between overflow-x-scroll m-3 m-lg-5">
-        <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="addson" style="
+
+        <?php
+        // Assuming you have fetched the add-ons' data from the database in an array named $addons
+        foreach ($addsons as $addon) {
+          $imageUrl = $addon['picture'];
+          ?>
+
+          <img src="<?php echo $imageUrl; ?>" alt="addson" style="
               width: 15rem;
               height: 25rem;
               object-fit: cover;
               border-radius: 15px;
-            " class="me-5" />
-        <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="addson" style="
-              width: 15rem;
-              height: 25rem;
-              object-fit: cover;
-              border-radius: 15px;
-            " />
-        <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="addson" style="
-              width: 15rem;
-              height: 25rem;
-              object-fit: cover;
-              border-radius: 15px;
-            " class="mx-5" />
-        <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="addson" style="
-              width: 15rem;
-              height: 25rem;
-              object-fit: cover;
-              border-radius: 15px;
-            " />
-        <img src="assets/pexels-thorsten-technoman-338504.jpg" alt="addson" style="
-              width: 15rem;
-              height: 25rem;
-              object-fit: cover;
-              border-radius: 15px;
-            " class="ms-5" />
+            "
+            class="<?php echo $addon === end($addsons) ? 'ms-3' : (reset($addsons) === $addon ? 'me-3' : 'mx-3'); ?>" />
+
+        <?php } ?>
+
       </div>
     </div>
   </section>

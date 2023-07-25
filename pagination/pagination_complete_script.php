@@ -24,76 +24,82 @@ $counter = $startIndex + 1;
 <?php if (empty($currentPageData)): ?>
     <p>No data available.</p>
 <?php else: ?>
-    <table class="table table-striped table-hover table-bordered shadow rounded-5">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Room Name</th>
-                <th>Schedule</th>
-                <th>Operation</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($currentPageData as $user): ?>
+    <form action="admin-dashboard.php" method="post">
+        <table class="table table-striped table-hover table-bordered shadow rounded-5">
+            <thead>
                 <tr>
-                    <td>
-                        <?php echo $counter++; ?>
-                    </td>
-                    <td>
-                        <?php echo $user['fName']; ?>
-                    </td>
-                    <td>
-                        <?php echo $user['lName']; ?>
-                    </td>
-                    <td>
-                        <?php echo $user['email']; ?>
-                    </td>
-                    <td>
-                        <?php echo $user['title']; ?>
-                    </td>
-                    <td>
-                        <?php echo $user['date']; ?>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
-                            data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
-                            Delete
-                        </button>
-
-                        <!-- Delete Confirmation Modal -->
-                        <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
-                            aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm
-                                            Deletion
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Are you sure you want to delete this row?</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <form action="admin-dashboard.php" method="post">
+                    <th>
+                        <input type="checkbox" id="selectAllCheckboxComplete" onclick="toggleCheckboxesComplete()">
+                    </th>
+                    <th>#</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Room Name</th>
+                    <th>Schedule</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($currentPageData as $user): ?>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selectedRowComplete[]" value="<?php echo $user['id']; ?>">
+                        </td>
+                        <td>
+                            <?php echo $counter++; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['fName']; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['lName']; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['email']; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['title']; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['date']; ?>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
+                                data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
+                                Delete
+                            </button>
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
+                                aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm
+                                                Deletion
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this row?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancel</button>
                                             <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
                                             <button type="submit" class="btn btn-danger"
                                                 name="deleteFromComplete">Delete</button>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </form>
     <!-- Pagination links -->
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
@@ -114,4 +120,14 @@ $counter = $startIndex + 1;
             <?php endif; ?>
         </ul>
     </nav>
+    <script>
+        function toggleCheckboxesComplete() {
+            const checkboxes = document.querySelectorAll('input[name="selectedRowComplete[]"]');
+            const selectAllCheckbox = document.getElementById('selectAllCheckboxComplete');
+
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+    </script>
 <?php endif; ?>
