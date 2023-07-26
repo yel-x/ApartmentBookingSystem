@@ -12,6 +12,7 @@ require 'components/retrieveRooms.php';
                 <th>Title</th>
                 <th>Picture</th>
                 <th>Description</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -45,6 +46,9 @@ require 'components/retrieveRooms.php';
                     </td>
                     <td>
                         <?php echo $room['description']; ?>
+                    </td>
+                    <td>
+                        <?php echo $room['status']; ?>
                     </td>
                     <td><Button class="btn rounded-pill btn-secondary">Update</Button>
                         <Button class="btn rounded-pill btn-danger">Delete</Button>

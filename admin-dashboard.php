@@ -2,7 +2,7 @@
 require 'components/move.php';
 require 'components/navbar.php';
 require 'components/retrieveNotif.php';
-require 'components/retrieveCopy.php';
+
 
 // Initialize an empty array to store user data
 $appointment = [];
@@ -78,7 +78,7 @@ while ($row = mysqli_fetch_assoc($roomOccupancyResult)) {
 // Convert the data to JSON format
 $chartData = json_encode($data);
 
-// Daily Booking Trends - Debugging
+// Daily Booking Trends
 $dailyQuery = "SELECT DATE(date) AS appointment_date, COUNT(*) AS appointment_count FROM appointment GROUP BY DATE(date)";
 $dailyResult = mysqli_query($conn, $dailyQuery);
 
@@ -88,7 +88,7 @@ while ($row = mysqli_fetch_assoc($dailyResult)) {
     $dailyData['counts'][] = (int) $row['appointment_count'];
 }
 
-// Weekly Booking Trends - Debugging
+// Weekly Booking Trends
 $weeklyQuery = "SELECT DATE(date) AS start_date, COUNT(*) AS appointment_count FROM appointment GROUP BY WEEK(date)";
 $weeklyResult = mysqli_query($conn, $weeklyQuery);
 
@@ -98,7 +98,7 @@ while ($row = mysqli_fetch_assoc($weeklyResult)) {
     $weeklyData['counts'][] = (int) $row['appointment_count'];
 }
 
-// Monthly Booking Trends - Debugging
+// Monthly Booking Trends
 $monthlyQuery = "SELECT DATE_FORMAT(date, '%Y-%m') AS appointment_month, COUNT(*) AS appointment_count FROM appointment GROUP BY DATE_FORMAT(date, '%Y-%m')";
 $monthlyResult = mysqli_query($conn, $monthlyQuery);
 
@@ -117,6 +117,7 @@ $trendsData = array(
 
 // Encode the combined data array into JSON
 $trendsDataJson = json_encode($trendsData);
+
 ?>
 <style>
     #bookingTrendsChartContainer {
@@ -416,81 +417,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
 <!-- User Table content -->
 <div id="bookAppointment" class="container mt-3 mb-5 my-lg-5" style="display: none;" <?php if (!$isBookAppointment)
     echo 'style="display: none;"'; ?>>
-    <h1>User Table</h1>
-    <?php if (empty($userinfocopy)): ?>
-        <p>No data available in this table.</p>
-    <?php else: ?>
-        <table class="table table-striped table-hover table-bordered shadow rounded-5" id="bookAppointment">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Password</th>
-                    <th>Operation</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $counter = 1;
-                foreach ($userinfocopy as $user):
-                    ?>
-                    <tr>
-                        <td>
-                            <?php echo $counter++; ?>
-                        </td>
-                        <td>
-                            <?php echo $user['fName']; ?>
-                        </td>
-                        <td>
-                            <?php echo $user['lName']; ?>
-                        </td>
-                        <td>
-                            <?php echo $user['email']; ?>
-                        </td>
-                        <td>
-                            <?php echo $user['password']; ?>
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
-                                data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
-                                Delete
-                            </button>
-
-                            <!-- Delete Confirmation Modal -->
-                            <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
-                                aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm
-                                                Deletion
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Are you sure you want to delete this row?</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Cancel</button>
-                                            <form action="admin-dashboard.php" method="post">
-                                                <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
-                                                <button type="submit" class="btn btn-danger"
-                                                    name="deleteFromComplete">Delete</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
+    <?php include 'userTable.php'; ?>
 </div>
 
 <!-- Add rooms content -->

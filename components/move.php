@@ -3,6 +3,8 @@
 session_start();
 
 require 'retrieveAppointment.php';
+require 'components/retrieveCopy.php';
+
 // Check if any checkboxes are selected
 if (isset($_POST['selectedRow']) || isset($_POST['selectedRowOngoing']) || isset($_POST['selectedRowComplete'])) {
     $selectedRows = [];
@@ -104,5 +106,28 @@ if (isset($_POST['selectedRow']) || isset($_POST['selectedRowOngoing']) || isset
     // Redirect back to the table page with success message
     header("Location: " . $_SERVER['HTTP_REFERER']);
     exit();
+}
+
+if (isset($_POST['deleteFromUserTable'])) {
+    // Get the user ID from the POST data
+    $userIdToDelete = $_POST['userId'];
+
+    // Prepare the DELETE query
+    $query = "DELETE FROM userinfocopy WHERE id = ?";
+
+    // Create a prepared statement
+    $stmt = $conn->prepare($query);
+
+    // Bind the parameter (userId) to the statement
+    $stmt->bind_param("i", $userIdToDelete);
+
+    // Execute the DELETE query
+    if ($stmt->execute()) {
+        $_SESSION['successMessage'] = "Succesfully deleted an account";
+
+        // Redirect back to the table page
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit();
+    }
 }
 ?>

@@ -86,7 +86,7 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
         // If there are no password validation errors, update the user information
         if (empty($passwordError) && empty($cPasswordError)) {
             // Use a separate query to update non-password fields
-            $updateSql = "UPDATE userInfo SET fName='$fName', lName='$lName', email='$email' WHERE id=$userId";
+            $updateSql = "UPDATE userinfo SET fName='$fName', lName='$lName', email='$email' WHERE id=$userId";
             $result = mysqli_query($conn, $updateSql);
 
             // Handle password updates if both passwords are provided
