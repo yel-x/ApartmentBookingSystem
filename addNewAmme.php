@@ -1,16 +1,15 @@
 <?php
-require 'components/retrieveRooms.php';
+require 'components/retrieveAddsOn.php';
 session_start();
 $errors = array();
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Retrieve form data and sanitize it (add more validation/sanitization as needed)
-    $roomTitle = $_POST['title'];
-    $price = $_POST['price'];
+    $addsOnTitle = $_POST['title'];
     $description = $_POST['description'];
-    $roomTitle = htmlspecialchars($roomTitle);
-    $price = htmlspecialchars($price);
+    $price = $_POST['price'];
+    $addsOnTitle = htmlspecialchars($addsOnTitle);
     $description = htmlspecialchars($description);
 
     // Handle file uploads
@@ -34,12 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     // Insert data into the database
     $picturePaths = implode("\n", $picturePaths); // Concatenate filenames with a comma (adjust as per your database schema)
-    $query = "INSERT INTO rooms (title, description, picture, price, status) VALUES ('$roomTitle', '$description', '$picturePaths', '$price', 'Available')";
+    $query = "INSERT INTO addson (title, description, picture, price, availability) VALUES ('$addsOnTitle', '$description', '$picturePaths', '$price', 'Available')";
 
     if (mysqli_query($conn, $query)) {
         // After successful update
         $userId = $_GET['userId'];
-        $successMessage = "Room added successfully.";
+        $successMessage = "addsOn added successfully.";
         $_SESSION['successMessage'] = $successMessage;
         header("Location: admin-dashboard.php?userId={$userId}");
         exit();
@@ -51,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 require 'components/navbar.php';
 ?>
-<h2>Add New rooms</h2>
+<h2>Add New addsOns</h2>
 <div class="container">
     <!-- Display error messages if any -->
     <?php if (!empty($errors)): ?>
@@ -67,7 +66,7 @@ require 'components/navbar.php';
     <?php endif; ?>
     <form class="row g-3" method="post" enctype="multipart/form-data">
         <div class="col-md-4">
-            <label for="validationDefault01" class="form-label">Room Title</label>
+            <label for="validationDefault01" class="form-label">addsOn Title</label>
             <input type="text" class="form-control" name="title" id="validationDefault01" required>
         </div>
         <div class="col-md-4">
@@ -75,10 +74,10 @@ require 'components/navbar.php';
             <input type="text" class="form-control" name="description" id="validationDefault02" required>
         </div>
         <div class="col-md-4">
-            <label for="validationDefault03" class="form-label">Price</label>
-            <input type="number" class="form-control" name="price" id="validationDefault03" required>
+            <label for="formFileMultiple" class="form-label">Price</label>
+            <input class="form-control" type="number" name="price" id="formPrice">
         </div>
-        <div class="mb-3">
+        <div class="col-md-8">
             <label for="formFileMultiple" class="form-label">Pictures</label>
             <input class="form-control" type="file" name="pictures[]" id="formFileMultiple" multiple>
         </div>

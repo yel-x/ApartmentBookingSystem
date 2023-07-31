@@ -17,6 +17,7 @@ if (isset($_GET['rID'])) {
     header("Location: " . $_SERVER['HTTP_REFERER']);
     exit();
 }
+
 ?>
 
 <div class="container">
@@ -30,6 +31,7 @@ if (isset($_GET['rID'])) {
                 <th>Picture</th>
                 <th>Description</th>
                 <th>Status</th>
+                <th>Price</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -62,6 +64,9 @@ if (isset($_GET['rID'])) {
                     </td>
                     <td>
                         <?php echo $room['status']; ?>
+                    </td>
+                    <td>
+                        <?php echo $room['price']; ?>
                     </td>
                     <td>
                         <a class="btn rounded-pill btn-secondary"

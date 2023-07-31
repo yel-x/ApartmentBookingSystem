@@ -2,6 +2,7 @@
 ob_start(); // Start output buffering
 require 'components/retrieveRooms.php';
 require 'components/retrieveCopy.php';
+require 'components/retrieveAddsOn.php';
 // Initialize form data and errors
 $errors = array();
 $fName = $lName = $email = $date = $addOn = '';
@@ -19,17 +20,19 @@ function validateInput($input)
 }
 
 // Function to execute the SQL INSERT statement
-function executeInsertStatement($conn, $fName, $lName, $email, $title, $date, $addOn)
+function executeInsertStatement($conn, $fName, $lName, $email, $title, $date, $selectedAddons)
 {
     // Prepare the SQL INSERT statement
     $stmt = $conn->prepare("INSERT INTO appointment (fName, lName, email, title, date, addOn) VALUES (?, ?, ?, ?, ?, ?)");
 
     // Bind the form values to the prepared statement placeholders
-    $stmt->bind_param('ssssss', $fName, $lName, $email, $title, $date, $addOn);
+    $stmt->bind_param('ssssss', $fName, $lName, $email, $title, $date, $selectedAddons);
 
     // Execute the prepared statement to insert the data into the database
     $stmt->execute();
 }
+
+
 require 'components/navbar.php';
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -60,11 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['date'] = 'Please select a valid date.';
     }
 
-    // Validate add-ons selection
-    $addOn = validateInput($_POST['addOn']);
-    if (empty($addOn) || $addOn === '0') {
-        $errors['addOn'] = 'Please select a valid add-on.';
-    }
+    // Validate addons checkboxes
+    $selectedAddons = isset($_POST['addons']) ? $_POST['addons'] : array();
 
     // Validate terms and conditions checkbox
     $termsChecked = isset($_POST['terms']) && $_POST['terms'] === '1';
@@ -91,10 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Call the function to retrieve the title for the given rID
         $title = getTitleForRoom($rID, $rooms);
+        // Convert the selected addons array to a comma-separated string
+        $selectedAddonsStr = implode(", ", $selectedAddons);
 
-        // Assuming you have established the $mysqli connection to the database
-        // You should always use prepared statements to prevent SQL injection
-        executeInsertStatement($conn, $fName, $lName, $email, $title, $date, $addOn);
+        // Call the modified function to execute the SQL INSERT statement
+        executeInsertStatement($conn, $fName, $lName, $email, $title, $date, $selectedAddonsStr);
+
         // Redirect to the index page after successful insertion
         header("Location: index.php?userId=" . urlencode($userId));
         exit;
@@ -118,7 +120,6 @@ ob_end_flush();
                 </div>
             <?php endif; ?>
         </div>
-
         <!-- Last name field -->
         <div class="col-md-4">
             <label for="validationServer02" class="form-label">Last name</label>
@@ -130,7 +131,6 @@ ob_end_flush();
                 </div>
             <?php endif; ?>
         </div>
-
         <!-- Email field -->
         <div class="col-md-4">
             <label for="validationServerUsername" class="form-label">Email</label>
@@ -208,20 +208,21 @@ ob_end_flush();
                 <?php endif; ?>
             </div>
         </div>
-
+        <!-- Checkboxes for addsons -->
         <div class="col-md-4">
-            <label for="validationServeAdd" class="form-label">Select an Adds on</label>
-            <select class="form-select <?php echo isset($errors['addOn']) ? 'is-invalid' : ''; ?>"
-                aria-label="Default select example" name="addOn">
-                <option <?php echo isset($addOn) && $addOn === '0' ? 'selected' : ''; ?> value="0">Open this select menu
-                </option>
-                <option <?php echo isset($addOn) && $addOn === '1' ? 'selected' : ''; ?> value="1">One</option>
-                <option <?php echo isset($addOn) && $addOn === '2' ? 'selected' : ''; ?> value="2">Two</option>
-                <option <?php echo isset($addOn) && $addOn === '3' ? 'selected' : ''; ?> value="3">Three</option>
-            </select>
-            <?php if (isset($errors['addOn'])): ?>
+            <label class="form-label">Select Addons</label><br>
+            <?php foreach ($addsons as $addson): ?>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="addons[]" id="addon-<?php echo $addson['id']; ?>"
+                        value="<?php echo $addson['title']; ?>">
+                    <label class="form-check-label" for="addon-<?php echo $addson['id']; ?>">
+                        <?php echo htmlspecialchars($addson['title']); ?>
+                    </label>
+                </div>
+            <?php endforeach; ?>
+            <?php if (isset($errors['addons'])): ?>
                 <div class="invalid-feedback">
-                    <?php echo $errors['addOn']; ?>
+                    <?php echo $errors['addons']; ?>
                 </div>
             <?php endif; ?>
         </div>

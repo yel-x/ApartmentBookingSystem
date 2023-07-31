@@ -22,7 +22,4 @@ if ($result) {
 } else {
     echo "Error executing the query: " . mysqli_error($conn);
 }
-
-// Close the database connection
-mysqli_close($conn);
 ?>

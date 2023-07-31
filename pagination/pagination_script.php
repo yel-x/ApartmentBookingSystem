@@ -41,6 +41,7 @@ if (empty($appointment)) {
                     <th>Email</th>
                     <th>Room Name</th>
                     <th>Schedule</th>
+                    <th>Ammenities</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -67,6 +68,9 @@ if (empty($appointment)) {
                         </td>
                         <td>
                             <?php echo $user['date']; ?>
+                        </td>
+                        <td>
+                            <?php echo $user['addOn']; ?>
                         </td>
                         <td>
                             <button type="submit" class="btn btn-danger rounded-pill btn-sm p-2 mb-2 mb-lg-0"
