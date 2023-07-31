@@ -114,7 +114,7 @@ $evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
                 <a class="text-decoration-none text-reset"
                   href="<?php echo $userId && !empty($userId) ? 'roomDetails.php?userId=' . $userId . '&rID=' . $room['rID'] : 'roomDetails.php?rID=' . $room['rID']; ?>">
                   <img src="<?php echo $firstPictureUrl; ?>" alt="" class="card-img rounded rounded-3"
-                    style="width: 18rem" />
+                    style="width: 300px; height: 200px; object-fit: cover;" />
                 </a>
               <?php endif; ?>
             </div>
@@ -137,7 +137,6 @@ $evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
           </div>
         </div>
       <?php endforeach; ?>
-
     </div>
   </section>
   <!-- adds on -->
@@ -150,23 +149,18 @@ $evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
         provident!
       </p>
       <div class="addson d-flex justify-content-between overflow-x-scroll m-3 m-lg-5">
-
         <?php
-        // Assuming you have fetched the add-ons' data from the database in an array named $addons
         foreach ($addsons as $addon) {
           $imageUrl = $addon['picture'];
           ?>
 
           <img src="<?php echo $imageUrl; ?>" alt="addson" style="
-              width: 15rem;
-              height: 25rem;
-              object-fit: cover;
-              border-radius: 15px;
-            "
-            class="<?php echo $addon === end($addsons) ? 'ms-3' : (reset($addsons) === $addon ? 'me-3' : 'mx-3'); ?>" />
-
+        width: 15rem;
+        height: 25rem;
+        object-fit: cover;
+        border-radius: 15px;
+        " class="me-4" />
         <?php } ?>
-
       </div>
     </div>
   </section>

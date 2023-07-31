@@ -16,37 +16,34 @@ require 'components/retrieveAddsOn.php';
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($addsons as $addson):
-                // Use regular expression to match all image URLs in the 'picture' field
-                preg_match_all('/(?:uploads[\\\\\\/ ]+[\w.-]+)/', $addson['picture'], $images);
-                $images = $images[0];
-                ?>
+            <?php foreach ($addsons as $addsons): ?>
                 <tr>
                     <td>
-                        <?php echo $addson['title']; ?>
+                        <?php echo $addsons['title']; ?>
                     </td>
                     <td>
                         <?php
-                        if (count($images) > 0) {
-                            // Get the first image URL
-                            $firstImage = trim($images[0]);
-                        } else {
-                            // No images found
-                            $firstImage = ''; // Set to empty string if no images found
-                        }
+                        $picture = $addsons['picture'];
+                        // Split the picture string into an array of image URLs
+                        $pictureUrls = ($picture !== '') ? explode("\n", $picture) : [];
 
-                        // Check if the file exists before displaying the image
-                        if (!empty($firstImage) && file_exists($firstImage)) {
-                            echo '<img src="' . $firstImage . '" alt="' . $addson['title'] . '" style="max-height: 100px;">';
-                        } else {
-                            echo 'Image not found';
-                        }
+                        // Get the first image URL
+                        $firstImage = trim($pictureUrls[0]);
                         ?>
+
+                        <!-- Now, display the first image if it exists -->
+                        <?php if (!empty($firstImage) && file_exists($firstImage)): ?>
+                            <img src="<?php echo $firstImage; ?>" alt="<?php echo $addsons['title']; ?>"
+                                style="max-height: 100px;">
+                        <?php else: ?>
+                            <p>Image not found</p>
+                        <?php endif; ?>
                     </td>
                     <td>
-                        <?php echo $addson['description']; ?>
+                        <?php echo $addsons['description']; ?>
                     </td>
-                    <td><Button class="btn rounded-pill btn-secondary">Update</Button>
+                    <td>
+                        <Button class="btn rounded-pill btn-secondary">Update</Button>
                         <Button class="btn rounded-pill btn-danger">Delete</Button>
                     </td>
                 </tr>

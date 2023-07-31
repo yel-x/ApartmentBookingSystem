@@ -121,6 +121,5 @@ $pictureUrls = ($picture !== '') ? array_filter(explode("\n", $picture), 'trim')
                 <a href="login.php" class="btn btn-outline-danger rounded-pill w-50 text-decoration-none">Appoint</a>
             <?php endif; ?>
         </div>
-
     </div>
 </div>

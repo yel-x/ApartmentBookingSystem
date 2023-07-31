@@ -3,7 +3,6 @@ require 'components/move.php';
 require 'components/navbar.php';
 require 'components/retrieveNotif.php';
 
-
 // Initialize an empty array to store user data
 $appointment = [];
 
@@ -139,14 +138,13 @@ $trendsDataJson = json_encode($trendsData);
 </style>
 <title>Dashboard</title>
 <?php
+
 if (isset($_SESSION['successMessage'])) {
     $successMessage = $_SESSION['successMessage'];
     echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
               <strong>' . $successMessage . '</strong>
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>';
-
-    // Clear the success message from the session
     unset($_SESSION['successMessage']);
 }
 ?>
@@ -423,7 +421,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
 <!-- Add rooms content -->
 <div id="addRooms" class="container mt-3 mb-5 my-lg-5" <?php if (!$isAddRooms)
     echo 'style="display: none;"'; ?>>
-    <?php include 'addRooms.php'; ?>
+    <?php include 'Rooms.php'; ?>
 </div>
 
 <!-- Add addsOn content -->
