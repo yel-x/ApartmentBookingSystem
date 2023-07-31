@@ -144,23 +144,46 @@ $evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
     <div class="container-fluid bg-danger-subtle pt-3">
       <h1 class="text-center">Adds on</h1>
       <p class="text-center">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Non nulla
-        expedita quos dolorem. Nostrum vitae fugiat, culpa quis molestiae
-        provident!
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Non nulla expedita quos dolorem. Nostrum vitae fugiat,
+        culpa quis molestiae provident!
       </p>
       <div class="addson d-flex justify-content-between overflow-x-scroll m-3 m-lg-5">
         <?php
-        foreach ($addsons as $addon) {
+        foreach ($addsons as $index => $addon) {
           $imageUrl = $addon['picture'];
+          $title = $addon['title'];
+          $description = $addon['description'];
+          $availability = $addon['availability'];
+          $price = $addon['price'];
           ?>
-
           <img src="<?php echo $imageUrl; ?>" alt="addson" style="
-        width: 15rem;
-        height: 25rem;
-        object-fit: cover;
-        border-radius: 15px;
-        " class="me-4" />
+              width: 15rem;
+              height: 25rem;
+              object-fit: cover;
+              border-radius: 15px;
+              cursor: pointer; /* Add this line to show the pointer cursor on the images */
+            " class="me-4" data-bs-toggle="modal" data-bs-target="#exampleModal" data-title="<?php echo $title; ?>"
+            data-description="<?php echo $description; ?>" data-availability="<?php echo $availability; ?>"
+            data-price="<?php echo $price; ?>" />
         <?php } ?>
+      </div>
+    </div>
+    <!-- Add the following code anywhere in your HTML, preferably after the addson section -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal-title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="modal-description"></p>
+            <img src="" id="modal-image" style="width: 100%; max-height: 300px;" class="object-fit-contain"
+              alt="addson" />
+            <p>Availability: <span id="modal-availability"></span></p>
+            <p>Price: <span id="modal-price"></span></p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -297,6 +320,37 @@ $evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
       </p>
     </div>
   </footer>
+  <script>
+    // Add this script anywhere after the Bootstrap and jQuery scripts are loaded.
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const modalTitleElement = document.getElementById("modal-title");
+      const modalDescriptionElement = document.getElementById("modal-description");
+      const modalImageElement = document.getElementById("modal-image");
+      const modalAvailabilityElement = document.getElementById("modal-availability");
+      const modalPriceElement = document.getElementById("modal-price");
+
+      // Attach an event listener to each image with the class "me-4" (this class is set on the images in the loop)
+      const images = document.querySelectorAll(".me-4");
+      images.forEach((image) => {
+        image.addEventListener("click", function () {
+          // Get the data from the data attributes
+          const title = this.getAttribute("data-title");
+          const description = this.getAttribute("data-description");
+          const imageUrl = this.getAttribute("src");
+          const availability = this.getAttribute("data-availability");
+          const price = this.getAttribute("data-price");
+
+          // Populate the modal content with the fetched data
+          modalTitleElement.textContent = title;
+          modalDescriptionElement.textContent = description;
+          modalImageElement.src = imageUrl;
+          modalAvailabilityElement.textContent = availability;
+          modalPriceElement.textContent = price;
+        });
+      });
+    });
+  </script>
 
   <script>
     // JavaScript code to handle smooth scrolling when clicking navigation links
