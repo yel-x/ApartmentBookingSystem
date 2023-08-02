@@ -2,6 +2,59 @@
 require 'components/retrieve.php';
 require 'components/retrieveRenters.php';
 require 'components/layout.php';
+require 'components/retrieveRooms.php';
+
+// Check if the current user is a renter and if a title is available
+$isRenter = false;
+if (isset($title)) {
+  foreach ($rented as $renter) {
+    if ($renter['email'] == $email && $renter['title'] == $title) {
+      $isRenter = true;
+      $advancePayment = $renter['advancePayment'];
+      break;
+    }
+  }
+}
+
+// Fetch room data based on the rented title
+$room = null; // Initialize as null
+if ($isRenter && isset($title)) {
+  // Create a query to retrieve room information based on the rented title
+  $query = "SELECT * FROM rooms WHERE title = '$title'";
+
+  // Execute the query
+  $result = mysqli_query($conn, $query);
+
+  // Check if the query was successful
+  if ($result) {
+    // Fetch the data from the result set and store it in the $room array
+    $room = mysqli_fetch_assoc($result);
+
+    mysqli_free_result($result);
+  } else {
+    echo "Error executing the query: " . mysqli_error($conn);
+  }
+}
+
+// Calculate the due date one month from the dateMoved
+$dateMoved = strtotime($renter['dateMoved']);
+$dueDate = date('M d, Y', strtotime('+1 month', $dateMoved));
+
+// Calculate the number of days remaining until the due date
+$currentDate = time(); // Current timestamp
+$dueDateTimestamp = strtotime($dueDate);
+$daysRemaining = floor(($dueDateTimestamp - $currentDate) / (60 * 60 * 24));
+
+// Check if the due date has passed and update the advancePayment
+if ($daysRemaining <= 0) {
+  $advancePayment -= $room['price'];
+  // Update the advancePayment in the rented table
+  $updateQuery = "UPDATE rented SET advancePayment = '$advancePayment' WHERE title = '$title'";
+  $updateResult = mysqli_query($conn, $updateQuery);
+  if (!$updateResult) {
+    echo "Error updating the advancePayment: " . mysqli_error($conn);
+  }
+}
 ?>
 
 <title>Profile Account</title>
@@ -21,24 +74,32 @@ require 'components/layout.php';
     ?>
     <div class="row row-cols-1 row-cols-md-3 d-flex justify-content-center align-items-center">
       <!-- Card on the left -->
-      <div class="col d-flex flex-column align-items-center p-3 text-center vh-25">
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title">Rent Payment</h5>
-            <p class="card-text">
-            <h3>Due Date</h3>
-            <span class="text-muted">Aug 5, 2023</span>
-            <p>3000.00</p>
-            </p>
-            <div class="card-footer card-text">
-              <h5>5 days to due date</h5>
-              <p>Available payment: <strong>
-                  <?php echo $advancePayment; ?>
-                </strong></p>
+      <?php if ($isRenter && isset($room)): ?>
+        <div class="col d-flex flex-column align-items-center p-3 text-center vh-25">
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Rent Payment</h5>
+              <p class="card-text">
+              <h3>Due Date</h3>
+              <span class="text-muted">
+                <?php echo $dueDate; ?>
+              </span>
+              <p>
+                <?php echo $room['price']; ?>/month
+              </p>
+              </p>
+              <div class="card-footer card-text">
+                <h5>
+                  <?php echo $daysRemaining; ?> days to due date
+                </h5>
+                <p>Available payment: <strong>
+                    <?php echo $advancePayment; ?>
+                  </strong></p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      <?php endif; ?>
 
       <!-- Name, paragraph, and button in the center -->
       <div class="col d-flex flex-column align-items-center p-3 text-center vh-25">
@@ -64,7 +125,4 @@ require 'components/layout.php';
     </div>
 
   </div>
-  <script>
-
-  </script>
 </body>

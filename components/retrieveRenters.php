@@ -12,8 +12,17 @@ $result = $conn->query($query);
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $rented[] = $row;
+    }
+}
 
-        $advancePayment = $row['advancePayment'];
+// Check if the current user is a renter
+$isRenter = false;
+foreach ($rented as $renter) {
+    if ($renter['email'] == $email) {
+        $isRenter = true;
+        $advancePayment = $renter['advancePayment'];
+        $title = $renter['title'];
+        break;
     }
 }
 

@@ -138,6 +138,7 @@ $trendsDataJson = json_encode($trendsData);
     }
 </style>
 <title>Dashboard</title>
+
 <?php
 
 if (isset($_SESSION['successMessage'])) {
@@ -417,6 +418,7 @@ $isAddAddsOn = $currentFile === 'addAddsOn.php';
 <div id="bookAppointment" class="container mt-3 mb-5 my-lg-5" style="display: none;" <?php if (!$isBookAppointment)
     echo 'style="display: none;"'; ?>>
     <?php include 'userTable.php'; ?>
+    <?php include 'rentersTable.php'; ?>
 </div>
 
 <!-- Add rooms content -->

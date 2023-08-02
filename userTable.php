@@ -1,6 +1,7 @@
 <?php
 require 'components/layout.php';
 require 'components/retrieveUserInfo.php';
+require 'components/retrieveAppointment.php';
 require 'components/retrieveCopy.php';
 ?>
 
@@ -67,7 +68,7 @@ require 'components/retrieveCopy.php';
                                 </div>
                             </div>
                         </div>
-                        <!-- Your existing form code -->
+
                         <form action="admin-dashboard.php" method="post">
                             <input type="hidden" name="userinfocopyEmail" value="<?php echo $user['email']; ?>">
                             <input type="hidden" name="operation" value="move">
@@ -75,7 +76,6 @@ require 'components/retrieveCopy.php';
                                 data-bs-target="#moveConfirmationModal<?php echo $user['id']; ?>">Rented</button>
                         </form>
 
-                        <!-- Move Confirmation Modal -->
                         <div class="modal fade" id="moveConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
                             aria-labelledby="moveConfirmationModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -96,14 +96,18 @@ require 'components/retrieveCopy.php';
                                                     placeholder="Enter advance payment">
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label for="rentAndExtra">Rent and additional:</label>
-                                                <input type="text" class="form-control" name="rentAndExtra" id="rentAndExtra"
-                                                    placeholder="Enter rent and additional info">
-                                            </div>
-                                            <div class="form-group mb-3">
                                                 <label for="dateToMove">When will they be moved?</label>
                                                 <input type="date" class="form-control" name="dateToMove" id="dateToMove"
                                                     placeholder="Enter date to move">
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <h4 for="rentAndExtra">Information</h4>
+                                                <p>Room Title:
+                                                    <?php echo $title; ?>
+                                                </p>
+                                                <p>Ammenity(ies):
+                                                    <?php echo $addOn; ?>
+                                                </p>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"

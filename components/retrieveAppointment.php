@@ -10,6 +10,9 @@ $appointment = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $appointment[] = $row;
+        $title = $row['title'];
+        $addOn = $row['addOn'];
+
     }
 }
 

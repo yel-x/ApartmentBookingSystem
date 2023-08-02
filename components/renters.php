@@ -6,6 +6,8 @@ require 'components/retrieveAppointment.php';
 if (isset($_POST['moveFromUserTable']) && $_POST['operation'] === "move") {
     var_dump($_POST['userinfocopyEmail']);
     $userEmail = $_POST['userinfocopyEmail'];
+    $advancePayment = $_POST['advancePay'];
+    $dateToMove = $_POST['dateToMove'];
 
     // Find the user in the $userinfo array using the email
     $user = null;
@@ -19,14 +21,16 @@ if (isset($_POST['moveFromUserTable']) && $_POST['operation'] === "move") {
 
     if ($user) {
         // Insert user data into the 'rented' table
-        $insertQuery = "INSERT INTO rented (fName, lName, email, password, cPassword, pfPicture, timestamp)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $insertQuery = "INSERT INTO rented (fName, lName, email, password, cPassword, pfPicture, timestamp, advancePayment, dateMoved)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         // Use your database connection object/method here
         $stmt1 = $conn->prepare($insertQuery);
         $stmt1->bind_param(
-            "sssssss",
+            "sssssssss", // <-- Updated type definition string
             $user['fName'], $user['lName'], $user['email'],
-            $user['password'], $user['cPassword'], $user['pfPicture'], $user['timestamp']
+            $user['password'], $user['cPassword'], $user['pfPicture'], $user['timestamp'],
+            $advancePayment,
+            $dateToMove
         );
         if ($stmt1->execute()) {
             // Success message
@@ -51,16 +55,13 @@ if (isset($_POST['moveFromUserTable']) && $_POST['operation'] === "move") {
                 $appointmentData['title'], $appointmentData['addOn'], $appointmentData['date'], $appointmentData['timestamp']
             );
             if ($stmt4->execute()) {
-                // Success message
-                $_SESSION['successMessage'] .= ", appointment data moved to the complete table successfully";
 
                 // Step 7: Update 'title' and 'addOn' data in 'rented' table
                 $updateRentedQuery = "UPDATE rented SET title = ?, addOn = ? WHERE email = ?";
                 $stmt5 = $conn->prepare($updateRentedQuery);
                 $stmt5->bind_param("sss", $appointmentData['title'], $appointmentData['addOn'], $user['email']);
                 if ($stmt5->execute()) {
-                    // Success message
-                    $_SESSION['successMessage'] .= ", appointment data updated in rented table successfully";
+
                     // Step 8: Delete the user from the 'appointment' table using the email
                     $deleteAppointmentQuery = "DELETE FROM appointment WHERE email = ?";
                     $stmt6 = $conn->prepare($deleteAppointmentQuery);
@@ -71,7 +72,7 @@ if (isset($_POST['moveFromUserTable']) && $_POST['operation'] === "move") {
                     $stmt7 = $conn->prepare($deleteUserQuery);
                     $stmt7->bind_param("s", $user['email']);
                     if ($stmt7->execute()) {
-                        $_SESSION['successMessage'] .= "";
+                        $_SESSION['successMessage'] .= "Account is now a renter";
                     } else {
                         $_SESSION['errorMessage'] = "Failed to delete user from userinfo table";
                     }
