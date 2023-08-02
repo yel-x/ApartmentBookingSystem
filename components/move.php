@@ -1,8 +1,7 @@
 <?php
 // Start or resume the session
 session_start();
-
-require 'retrieveAppointment.php';
+require 'components/retrieveAppointment.php';
 require 'components/retrieveCopy.php';
 
 // Check if any checkboxes are selected
@@ -124,10 +123,10 @@ if (isset($_POST['deleteFromUserTable'])) {
     // Execute the DELETE query
     if ($stmt->execute()) {
         $_SESSION['successMessage'] = "Succesfully deleted an account";
-
         // Redirect back to the table page
         header("Location: " . $_SERVER['HTTP_REFERER']);
         exit();
     }
 }
+
 ?>

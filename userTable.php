@@ -1,5 +1,6 @@
 <?php
 require 'components/layout.php';
+require 'components/retrieveUserInfo.php';
 require 'components/retrieveCopy.php';
 ?>
 
@@ -14,7 +15,6 @@ require 'components/retrieveCopy.php';
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Email</th>
-                <th>Password</th>
                 <th>Operation</th>
             </tr>
         </thead>
@@ -37,10 +37,7 @@ require 'components/retrieveCopy.php';
                         <?php echo $user['email']; ?>
                     </td>
                     <td>
-                        <?php echo $user['password']; ?>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-secondary rounded-pill btn-sm m-2" data-bs-toggle="modal"
                             data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
                             Delete
                         </button>
@@ -70,6 +67,11 @@ require 'components/retrieveCopy.php';
                                 </div>
                             </div>
                         </div>
+                        <form action="admin-dashboard.php" method="post">
+                            <input type="hidden" name="userinfocopyEmail" value="<?php echo $user['email']; ?>">
+                            <input type="hidden" name="operation" value="move">
+                            <button type="submit" class="btn btn-danger rounded-pill" name="moveFromUserTable">Rented</button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>

@@ -1,5 +1,6 @@
 <?php
 require 'components/move.php';
+require 'components/renters.php';
 require 'components/navbar.php';
 require 'components/retrieveNotif.php';
 
