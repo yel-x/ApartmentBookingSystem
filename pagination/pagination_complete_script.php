@@ -37,7 +37,6 @@ $counter = $startIndex + 1;
                     <th>Email</th>
                     <th>Room Name</th>
                     <th>Schedule</th>
-                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,40 +63,45 @@ $counter = $startIndex + 1;
                         <td>
                             <?php echo $user['date']; ?>
                         </td>
-                        <td>
-                            <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
-                                data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
-                                Delete
-                            </button>
-                            <!-- Delete Confirmation Modal -->
-                            <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
-                                aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm
-                                                Deletion
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Are you sure you want to delete this row?</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Cancel</button>
-                                            <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
-                                            <button type="submit" class="btn btn-danger"
-                                                name="deleteFromComplete">Delete</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-success rounded-pill btn-sm m-2" data-bs-toggle="modal"
+                            data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">
+                            Delete
+                        </button>
+                        <!-- Delete Confirmation Modal -->
+                        <div class="modal fade" id="deleteConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
+                            aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm
+                                            Deletion
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete this row?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                        <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
+                                        <button type="submit" class="btn btn-danger"
+                                            name="deleteFromComplete">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+            </tfoot>
         </table>
     </form>
     <!-- Pagination links -->

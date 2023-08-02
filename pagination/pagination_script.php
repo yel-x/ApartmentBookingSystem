@@ -42,7 +42,6 @@ if (empty($appointment)) {
                     <th>Room Name</th>
                     <th>Schedule</th>
                     <th>Ammenities</th>
-                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,16 +71,25 @@ if (empty($appointment)) {
                         <td>
                             <?php echo $user['addOn']; ?>
                         </td>
-                        <td>
-                            <button type="submit" class="btn btn-danger rounded-pill btn-sm p-2 mb-2 mb-lg-0"
-                                name="moveToOngoing">Ongoing</button>
-                            <button type="submit" class="btn btn-success rounded-pill btn-sm p-2 mb-lg-0"
-                                name="moveToCompleteFromUserInfo">Complete</button>
-                            <input type="hidden" name="userId[]" value="<?php echo $user['aID']; ?>">
-                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="8" class="d-flex justify-content-end">
+                        <form action="admin-dashboard.php" method="post">
+                            <button type="submit" class="btn btn-danger rounded-pill btn-sm p-2 mb-2 mb-lg-0"
+                                name="moveToOngoing">Ongoing</button>
+                            <input type="hidden" name="selectedRow[]" value="<?php echo $user['aID']; ?>">
+                        </form>
+                        <form action="admin-dashboard.php" method="post">
+                            <button type="submit" class="btn btn-success rounded-pill btn-sm p-2 mb-lg-0"
+                                name="moveToCompleteFromUserInfo">Complete</button>
+                            <input type="hidden" name="selectedRow[]" value="<?php echo $user['aID']; ?>">
+                        </form>
+                    </td>
+                </tr>
+            </tfoot>
         </table>
         <!-- Pagination links -->
         <nav aria-label="Page navigation example">

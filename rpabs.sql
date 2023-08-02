@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 01, 2023 at 02:11 AM
+-- Generation Time: Aug 02, 2023 at 08:13 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -45,7 +45,8 @@ INSERT INTO `addson` (`id`, `title`, `picture`, `description`, `price`, `availab
 (15, 'Fan', 'uploads/kaveh-kit-genshin-impact.jpeg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 666, 'In-Stock'),
 (16, 'Pool', 'uploads/GenshinImpact_YaeMikoWallpaper4.jpg', 'Lorem 1234', 222, 'Available'),
 (18, 'AC', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1 .jpeg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 444, 'Available'),
-(19, 'TR', 'uploads/Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'lorem 12345678', 555, 'Available');
+(19, 'TR', 'uploads/Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'lorem 12345678', 555, 'Available'),
+(21, 'AC', 'uploads/Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 900, 'Available');
 
 -- --------------------------------------------------------
 
@@ -63,14 +64,6 @@ CREATE TABLE `appointment` (
   `addOn` varchar(255) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `appointment`
---
-
-INSERT INTO `appointment` (`aID`, `title`, `fName`, `lName`, `email`, `date`, `addOn`, `timestamp`) VALUES
-(349, 'Room 777', 'ei', 'Raiden', 'a@b.com', '2023-08-04', 'Fan, Pool', '2023-07-31 13:54:16'),
-(350, 'Room 888', 'ei', 'Raiden', 'a@b.com', '2023-09-08', 'Frig, Fan, Pool', '2023-08-01 00:05:57');
 
 --
 -- Triggers `appointment`
@@ -95,7 +88,9 @@ CREATE TABLE `complete` (
   `lName` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `date` date NOT NULL
+  `addOn` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -110,8 +105,46 @@ CREATE TABLE `ongoing` (
   `lName` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `date` date NOT NULL
+  `addOn` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `ongoing`
+--
+
+INSERT INTO `ongoing` (`id`, `fName`, `lName`, `email`, `title`, `addOn`, `date`, `timestamp`) VALUES
+(361, 'Raiden', 'Shogun', 'miko@gmail.com', 'Room 777', '', '2023-08-11', '2023-08-02 18:12:13');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rented`
+--
+
+CREATE TABLE `rented` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `fName` varchar(255) NOT NULL,
+  `lName` varchar(255) NOT NULL,
+  `pfPicture` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `cPassword` varchar(255) NOT NULL,
+  `addOn` varchar(255) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `timeRented` timestamp NOT NULL DEFAULT current_timestamp(),
+  `advancePayment` bigint(255) NOT NULL,
+  `dateMoved` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `rented`
+--
+
+INSERT INTO `rented` (`id`, `title`, `fName`, `lName`, `pfPicture`, `email`, `password`, `cPassword`, `addOn`, `timestamp`, `timeRented`, `advancePayment`, `dateMoved`) VALUES
+(28, 'Room 202', 'AlHaitham', 'Kaveh', 'uploads/alhaitham-birthday-art-genshinimpact.jpg', 'al@gmail.com', '$2y$10$ICFiBT5y21/i.lACaCqg7eyd4q4Pi6thcVB.EN4zQJt35WXECCgAG', '$2y$10$ICFiBT5y21/i.lACaCqg7eyd4q4Pi6thcVB.EN4zQJt35WXECCgAG', 'Fan, Pool, AC', '2023-08-02 17:47:41', '2023-08-02 15:10:52', 85288, '2023-08-03');
 
 -- --------------------------------------------------------
 
@@ -133,7 +166,7 @@ CREATE TABLE `rooms` (
 --
 
 INSERT INTO `rooms` (`rID`, `title`, `picture`, `description`, `status`, `price`) VALUES
-(36, 'Room 777', 'uploads/kaveh-kit-genshin-impact.jpeg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 'Available', 900),
+(36, 'Room 777', 'uploads/kaveh-kit-genshin-impact.jpeg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 'Reserved', 900),
 (37, 'Room 202', 'uploads/alhaitham-birthday-art-genshinimpact.jpg\nuploads/Eqic6LpUcAAQn0J.jpg\nuploads/F0kQliLXsAEi8ic.jpg\nuploads/GenshinImpact_YaeMikoWallpaper4.jpg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 'Available', 900);
 
 -- --------------------------------------------------------
@@ -168,23 +201,28 @@ CREATE TABLE `userinfo` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `cPassword` varchar(255) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `rentedtime` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `userinfo`
 --
 
-INSERT INTO `userinfo` (`id`, `fName`, `lName`, `pfPicture`, `email`, `password`, `cPassword`, `timestamp`) VALUES
-(1, 'admin', '123', '', 'admin@gmail.com', '$2y$10$FTeuA2tH76ozYNpE4DJtl.YODjxeG8T.jokxocpY7.aGnD/1wX2G2', '$2y$10$FTeuA2tH76ozYNpE4DJtl.YODjxeG8T.jokxocpY7.aGnD/1wX2G2', '2023-07-25 13:21:52'),
-(60, 'ei', 'Raiden', 'uploads/Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'a@b.com', '$2y$10$1wCmukEj892hcwg8dHVyCuP6F8DZWID9JNtDWgtReHeHxXeU71oRe', '$2y$10$1wCmukEj892hcwg8dHVyCuP6F8DZWID9JNtDWgtReHeHxXeU71oRe', '2023-08-01 00:05:16'),
-(62, 'Zhong', 'Li', 'uploads/Eqic6LpUcAAQn0J.jpg', 'morax@gmail.com', '$2y$10$JhXvCWdqZLMLKGZ06lQ7KOAcpA7/MvmowOQSgIcRLNBPF8ooRnwyG', '$2y$10$JhXvCWdqZLMLKGZ06lQ7KOAcpA7/MvmowOQSgIcRLNBPF8ooRnwyG', '2023-07-26 05:37:54'),
-(63, 'Zhong', 'Li', 'uploads/Eqic6LpUcAAQn0J.jpg', 'morax1@gmail.com', '$2y$10$G5O3kFDPwMjUWO1THjrHHeXHJbYptIqdnHGwm8bd2aiKcxFwV46T2', '$2y$10$G5O3kFDPwMjUWO1THjrHHeXHJbYptIqdnHGwm8bd2aiKcxFwV46T2', '2023-07-26 05:34:03'),
-(64, 'Genesis', 'Raiden', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1.webp', 'miko@gmail.com', '$2y$10$uCy5.DK6AO47Jy.E06hc.utlkCVIP1DQyq8T3EP/bRzHqKCXPyA1O', '$2y$10$uCy5.DK6AO47Jy.E06hc.utlkCVIP1DQyq8T3EP/bRzHqKCXPyA1O', '2023-07-26 06:49:45');
+INSERT INTO `userinfo` (`id`, `fName`, `lName`, `pfPicture`, `email`, `password`, `cPassword`, `timestamp`, `rentedtime`) VALUES
+(1, 'admin', '123', '', 'admin@gmail.com', '$2y$10$FTeuA2tH76ozYNpE4DJtl.YODjxeG8T.jokxocpY7.aGnD/1wX2G2', '$2y$10$FTeuA2tH76ozYNpE4DJtl.YODjxeG8T.jokxocpY7.aGnD/1wX2G2', '2023-08-02 08:42:18', NULL),
+(90, 'Raiden', 'Shogun', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1 .jpeg', 'miko@gmail.com', '$2y$10$OOTOxdFiLWUs65bgsQKbz.e7QAd2Ze5.obWmVIiXj2bRRS.QyYAdO', '$2y$10$OOTOxdFiLWUs65bgsQKbz.e7QAd2Ze5.obWmVIiXj2bRRS.QyYAdO', '2023-08-02 18:03:28', NULL);
 
 --
 -- Triggers `userinfo`
 --
+DELIMITER $$
+CREATE TRIGGER `after_userinfo_delete` AFTER DELETE ON `userinfo` FOR EACH ROW BEGIN
+    -- Delete the corresponding record from userinfocopy based on email
+    DELETE FROM userinfocopy WHERE email = OLD.email;
+END
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `userinfo_after_insert` AFTER INSERT ON `userinfo` FOR EACH ROW BEGIN
     INSERT INTO userinfocopy (fName, lName, email, password, pfPicture, cPassword, timestamp)
@@ -242,6 +280,13 @@ CREATE TABLE `userinfocopy` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `userinfocopy`
+--
+
+INSERT INTO `userinfocopy` (`id`, `fName`, `lName`, `email`, `password`, `pfPicture`, `cPassword`, `timestamp`) VALUES
+(31, 'Raiden', 'Shogun', 'miko@gmail.com', '$2y$10$OOTOxdFiLWUs65bgsQKbz.e7QAd2Ze5.obWmVIiXj2bRRS.QyYAdO', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1 .jpeg', '$2y$10$OOTOxdFiLWUs65bgsQKbz.e7QAd2Ze5.obWmVIiXj2bRRS.QyYAdO', '2023-08-02 18:03:28');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -267,6 +312,12 @@ ALTER TABLE `complete`
 -- Indexes for table `ongoing`
 --
 ALTER TABLE `ongoing`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `rented`
+--
+ALTER TABLE `rented`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -301,25 +352,31 @@ ALTER TABLE `userinfocopy`
 -- AUTO_INCREMENT for table `addson`
 --
 ALTER TABLE `addson`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `aID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=351;
+  MODIFY `aID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=362;
 
 --
 -- AUTO_INCREMENT for table `complete`
 --
 ALTER TABLE `complete`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=349;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=361;
 
 --
 -- AUTO_INCREMENT for table `ongoing`
 --
 ALTER TABLE `ongoing`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=329;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=362;
+
+--
+-- AUTO_INCREMENT for table `rented`
+--
+ALTER TABLE `rented`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `rooms`
@@ -331,19 +388,19 @@ ALTER TABLE `rooms`
 -- AUTO_INCREMENT for table `toastnotif`
 --
 ALTER TABLE `toastnotif`
-  MODIFY `toastID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=274;
+  MODIFY `toastID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=285;
 
 --
 -- AUTO_INCREMENT for table `userinfo`
 --
 ALTER TABLE `userinfo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `userinfocopy`
 --
 ALTER TABLE `userinfocopy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

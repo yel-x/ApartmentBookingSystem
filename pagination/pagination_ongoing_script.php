@@ -78,15 +78,19 @@ if (empty($ongoingUser)) {
                         <td>
                             <?php echo $user['date']; ?>
                         </td>
-                        <td>
-                            <!-- Buttons are now inside the form -->
-                            <button type="submit" class="btn btn-success rounded-pill btn-sm m-2"
-                                name="moveToCompleteFromOngoing">Complete</button>
-                            <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
-                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td>
+                        <!-- Buttons are now inside the form -->
+                        <button type="submit" class="btn btn-success rounded-pill btn-sm m-2"
+                            name="moveToCompleteFromOngoing">Complete</button>
+                        <input type="hidden" name="userId" value="<?php echo $user['id']; ?>">
+                    </td>
+                </tr>
+            </tfoot>
         </table>
         <!-- Pagination links -->
         <nav aria-label="Page navigation example">
