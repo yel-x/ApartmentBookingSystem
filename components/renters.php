@@ -1,5 +1,6 @@
 <?php
 require 'components/retrieveUserInfo.php';
+require 'components/retrieveAppointment.php';
 
 // Handle the "Rented" button submission
 if (isset($_POST['moveFromUserTable']) && $_POST['operation'] === "move") {
@@ -28,21 +29,65 @@ if (isset($_POST['moveFromUserTable']) && $_POST['operation'] === "move") {
             $user['password'], $user['cPassword'], $user['pfPicture'], $user['timestamp']
         );
         if ($stmt1->execute()) {
-            // Delete the user from the 'userinfo' table using the email
-            $deleteQuery = "DELETE FROM userinfo WHERE email = ?";
-            $stmt2 = $conn->prepare($deleteQuery);
-            $stmt2->bind_param("s", $user['email']);
+            // Success message
+            $_SESSION['successMessage'] = "Account is a renter now";
 
-            // Execute the deletion query
-            if ($stmt2->execute()) {
-                $_SESSION['successMessage'] = "Account is a renter now, and user deleted successfully";
+            // Step 5: Retrieve data from 'appointment' table
+            $selectAppointmentQuery = "SELECT title, addOn, date, timestamp FROM appointment WHERE email = ?";
+            $stmt3 = $conn->prepare($selectAppointmentQuery);
+            $stmt3->bind_param("s", $user['email']);
+            $stmt3->execute();
+            $result = $stmt3->get_result();
+            $appointmentData = $result->fetch_assoc();
+            $stmt3->close();
+
+            // Step 6: Insert 'title', 'addOn', 'date', and 'timestamp' data into 'complete' table
+            $insertCompleteQuery = "INSERT INTO complete (fName, lName, email, title, addOn, date, timestamp)
+                                   VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmt4 = $conn->prepare($insertCompleteQuery);
+            $stmt4->bind_param(
+                "sssssss",
+                $user['fName'], $user['lName'], $user['email'],
+                $appointmentData['title'], $appointmentData['addOn'], $appointmentData['date'], $appointmentData['timestamp']
+            );
+            if ($stmt4->execute()) {
+                // Success message
+                $_SESSION['successMessage'] .= ", appointment data moved to the complete table successfully";
+
+                // Step 7: Update 'title' and 'addOn' data in 'rented' table
+                $updateRentedQuery = "UPDATE rented SET title = ?, addOn = ? WHERE email = ?";
+                $stmt5 = $conn->prepare($updateRentedQuery);
+                $stmt5->bind_param("sss", $appointmentData['title'], $appointmentData['addOn'], $user['email']);
+                if ($stmt5->execute()) {
+                    // Success message
+                    $_SESSION['successMessage'] .= ", appointment data updated in rented table successfully";
+                    // Step 8: Delete the user from the 'appointment' table using the email
+                    $deleteAppointmentQuery = "DELETE FROM appointment WHERE email = ?";
+                    $stmt6 = $conn->prepare($deleteAppointmentQuery);
+                    $stmt6->bind_param("s", $user['email']);
+                    $stmt6->execute();
+                    // Step 8: Delete the user from the 'userinfo' table using the email
+                    $deleteUserQuery = "DELETE FROM userinfo WHERE email = ?";
+                    $stmt7 = $conn->prepare($deleteUserQuery);
+                    $stmt7->bind_param("s", $user['email']);
+                    if ($stmt7->execute()) {
+                        $_SESSION['successMessage'] .= "";
+                    } else {
+                        $_SESSION['errorMessage'] = "Failed to delete user from userinfo table";
+                    }
+                    $stmt6->close();
+                } else {
+                    $_SESSION['errorMessage'] = "Failed to update appointment data in rented table";
+                }
+                $stmt5->close();
             } else {
-                $_SESSION['errorMessage'] = "Failed to delete user from userinfo table";
+                $_SESSION['errorMessage'] = "Failed to move appointment data to the complete table";
             }
+            $stmt4->close();
+        } else {
+            $_SESSION['errorMessage'] = "Failed to insert user data into rented table";
         }
-        // Close the statements
         $stmt1->close();
-        $stmt2->close();
 
         // Redirect back to the table page
         header("Location: " . $_SERVER['HTTP_REFERER']);
