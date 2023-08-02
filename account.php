@@ -47,16 +47,26 @@ $daysRemaining = floor(($dueDateTimestamp - $currentDate) / (60 * 60 * 24));
 
 // Check if the due date has passed and update the advancePayment
 if ($daysRemaining <= 0) {
-  $advancePayment -= $room['price'];
+  $advancePayment = $room['price'];
   // Update the advancePayment in the rented table
   $updateQuery = "UPDATE rented SET advancePayment = '$advancePayment' WHERE title = '$title'";
   $updateResult = mysqli_query($conn, $updateQuery);
   if (!$updateResult) {
     echo "Error updating the advancePayment: " . mysqli_error($conn);
   }
+
+  // Show the toast notification if advance payment is all used up
+  if ($advancePayment <= 0) {
+    echo "<script>$(document).ready(function(){ $('#paymentToast').toast('show'); });</script>";
+  }
 }
 ?>
-
+<style>
+  .danger-counter,
+  small {
+    color: red;
+  }
+</style>
 <title>Profile Account</title>
 </head>
 
@@ -72,6 +82,17 @@ if ($daysRemaining <= 0) {
           </div>';
     }
     ?>
+    <div class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 5">
+      <div id="paymentToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto">Payment Due</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          Your advance payment balance is all used up. Please make the payment to avoid service disruption.
+        </div>
+      </div>
+    </div>
     <div class="row row-cols-1 row-cols-md-3 d-flex justify-content-center align-items-center">
       <!-- Card on the left -->
       <?php if ($isRenter && isset($room)): ?>
@@ -89,12 +110,27 @@ if ($daysRemaining <= 0) {
               </p>
               </p>
               <div class="card-footer card-text">
-                <h5>
-                  <?php echo $daysRemaining; ?> days to due date
-                </h5>
-                <p>Available payment: <strong>
-                    <?php echo $advancePayment; ?>
-                  </strong></p>
+                <?php if ($daysRemaining == 1): ?>
+                  <h5 class="danger-counter">
+                    1 day remaining
+                  </h5>
+                <?php elseif ($daysRemaining <= 5): ?>
+                  <h5 class="danger-counter">
+                    <?php echo $daysRemaining; ?> days remaining
+                  </h5>
+                <?php else: ?>
+                  <h5>
+                    <?php echo $daysRemaining; ?> days remaining
+                  </h5>
+                <?php endif; ?>
+                <?php if ($advancePayment <= 0): ?>
+                  <small>0 advance payment balance
+                  </small>
+                <?php else: ?>
+                  <p>Available payment: <strong>
+                      <?php echo $advancePayment; ?>
+                    </strong></p>
+                <?php endif; ?>
               </div>
             </div>
           </div>
