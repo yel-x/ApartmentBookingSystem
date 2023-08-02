@@ -17,39 +17,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
     $emailError = "Invalid email format.";
   }
 
-  // If there are no validation errors, proceed with the login operation
-  if (empty($emailError)) {
-    // Prepare the login query using prepared statement
-    $query = "SELECT id, password FROM userInfo WHERE email = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+  // Prepare the login query using prepared statement
+  $query = "SELECT id, password, 'userinfo' AS table_name FROM userinfo WHERE email = ?
+          UNION
+          SELECT id, password, 'rented' AS table_name FROM rented WHERE email = ?";
+  $stmt = $conn->prepare($query);
+  $stmt->bind_param("ss", $email, $email);
+  $stmt->execute();
+  $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-      // Email exists, retrieve user data
-      $row = $result->fetch_assoc();
+  if ($result->num_rows > 0) {
+    // Loop through the results to find the correct user
+    while ($row = $result->fetch_assoc()) {
       $hashed_password = $row['password'];
 
       // Verify the user's input password against the hashed password in the database
       if (password_verify($password, $hashed_password)) {
         // Passwords match, user is logged in
+        $tableName = $row['table_name']; // Get the table name to identify the user's status
         header("Location: index.php?userId=" . urlencode($row['id']));
         exit; // Stop further execution
-      } else {
-        // Passwords don't match, login failed
-        $loginError = "Invalid email or password.";
       }
-    } else {
-      // Email not found in the database
-      $loginError = "Invalid email or password.";
     }
-
-    // Close the prepared statement
-    $stmt->close();
+  } else {
+    // Email not found in the database
+    $loginError = "Invalid email or password.";
   }
-}
 
+  // Close the prepared statement
+  $stmt->close();
+
+}
 require 'components/navbar.php';
 ?>
 

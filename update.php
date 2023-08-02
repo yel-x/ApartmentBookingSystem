@@ -1,6 +1,6 @@
 <?php
-include 'components/retrieve.php';
-
+require 'components/retrieve.php';
+require 'components/retrieveRenters.php';
 $fNameError = $lNameError = $emailError = $passwordError = $cPasswordError = $pfPictureError = '';
 $errorMessage = ''; // Initialize error message variable
 
@@ -32,7 +32,6 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $emailError = 'Invalid email format.';
     }
-
     // Validate profile picture
     if ($_FILES['pfPicture']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = "uploads/";
@@ -40,7 +39,7 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
 
         if (move_uploaded_file($_FILES['pfPicture']['tmp_name'], $uploadFile)) {
             $newPicture = $uploadFile;
-
+            var_dump($newPicture);
             // Retrieve the old profile picture path for the user from the database
             $sql = "SELECT pfPicture FROM userInfo WHERE id = $userId";
             $result = mysqli_query($conn, $sql);
@@ -49,7 +48,7 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
                 $row = mysqli_fetch_assoc($result);
                 $oldPicture = $row['pfPicture'];
 
-                // Update the profile picture path in the database
+                // Update the profile picture path in the userInfo table
                 $updateSql = "UPDATE userInfo SET pfPicture = '$newPicture' WHERE id = $userId";
                 $updateResult = mysqli_query($conn, $updateSql);
 
@@ -59,15 +58,25 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
                         unlink($oldPicture);
                     }
                 } else {
-                    $errorMessage = "An error occurred while updating the profile picture.";
+                    $errorMessage = "An error occurred while updating the profile picture in the userInfo table.";
                     error_log("Query Error: " . mysqli_error($conn));
                 }
             } else {
                 // Initialize $oldPicture with some default value if profile picture update is not performed
                 $oldPicture = "path/to/old/picture.jpg";
             }
+
+            // Now update the profile picture path in the rented table
+            $sql1 = "UPDATE rented SET pfPicture = '$newPicture' WHERE id = $userId";
+            $updateResult1 = mysqli_query($conn, $sql1);
+
+            if (!$updateResult1) {
+                $errorMessage .= " An error occurred while updating the profile picture in the rented table.";
+                error_log("Query Error: " . mysqli_error($conn));
+            }
         }
     }
+
     // If there are no validation errors for non-password fields, update the user information
     if (empty($fNameError) && empty($lNameError) && empty($emailError)) {
         // Validate password if provided
@@ -85,9 +94,13 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
 
         // If there are no password validation errors, update the user information
         if (empty($passwordError) && empty($cPasswordError)) {
-            // Use a separate query to update non-password fields
-            $updateSql = "UPDATE userinfo SET fName='$fName', lName='$lName', email='$email' WHERE id=$userId";
-            $result = mysqli_query($conn, $updateSql);
+            // Update non-password fields in the userInfo table
+            $updateSqlUserInfo = "UPDATE userInfo SET fName='$fName', lName='$lName', email='$email' WHERE id=$userId";
+            $resultUserInfo = mysqli_query($conn, $updateSqlUserInfo);
+
+            // Update non-password fields in the rented table
+            $updateSqlRented = "UPDATE rented SET fName='$fName', lName='$lName', email='$email' WHERE id=$userId";
+            $resultRented = mysqli_query($conn, $updateSqlRented);
 
             // Handle password updates if both passwords are provided
             if (!empty($password) && !empty($cPassword)) {
@@ -99,6 +112,10 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
                 $updatePasswordSql = "UPDATE userInfo SET password='$hashedPassword', cPassword='$hashedCPassword' WHERE id=$userId";
                 $resultPassword = mysqli_query($conn, $updatePasswordSql);
 
+                // Use a separate query to update password fields
+                $updatePasswordSql = "UPDATE rented SET password='$hashedPassword', cPassword='$hashedCPassword' WHERE id=$userId";
+                $resultPassword = mysqli_query($conn, $updatePasswordSql);
+
                 if (!$resultPassword) {
                     // Handle password update failure
                     $errorMessage = "An error occurred while updating the password.";
@@ -107,7 +124,7 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
             }
 
             // Redirect to success page if non-password fields were successfully updated
-            if ($result) {
+            if ($resultUserInfo && $resultRented) {
                 header("Location: account.php?userId=" . urlencode($userId) . "&successMessage=" . urlencode($successMessage));
                 exit; // Stop further processing
             }

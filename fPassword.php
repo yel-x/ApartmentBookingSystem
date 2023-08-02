@@ -1,6 +1,7 @@
 <?php
 require 'components/navbar.php';
 require 'components/retrieve.php';
+require 'components/retrieveRenters.php';
 
 // Initialize variables
 $error_message = '';
@@ -16,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_message = "Please enter a valid email address.";
     } else {
-        // Check if the email exists in the database using prepared statement
+        // Check if the email exists in the userinfo table using prepared statement
         $query = "SELECT * FROM userinfo WHERE email=?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("s", $email);
@@ -24,11 +25,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            // Email exists, retrieve user data
+            // Email exists, retrieve user data from the userinfo table
             $user = $result->fetch_assoc();
         } else {
-            // Email not found in the database
-            $error_message = "Email not found.";
+            // If email not found in the userinfo table, check in the rented table
+            $query_rented = "SELECT * FROM rented WHERE email=?";
+            $stmt_rented = $conn->prepare($query_rented);
+            $stmt_rented->bind_param("s", $email);
+            $stmt_rented->execute();
+            $result_rented = $stmt_rented->get_result();
+
+            if ($result_rented->num_rows > 0) {
+                // Email exists, retrieve user data from the rented table
+                $user = $result_rented->fetch_assoc();
+            } else {
+                // Email not found in both tables
+                $error_message = "Email not found.";
+            }
         }
     }
 }
@@ -51,14 +64,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && is
         // Use password_hash() to securely store the new password
         $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
 
-        // Update the password and cPassword in the database using prepared statement
-        $update_query = "UPDATE userinfo SET password=?, cPassword=? WHERE email=?";
-        $stmt = $conn->prepare($update_query);
-        $stmt->bind_param("sss", $hashed_password, $hashed_password, $email);
-        $update_result = $stmt->execute();
+        // Update the password in the userinfo table using prepared statement
+        $update_query_userinfo = "UPDATE userinfo SET password=?, cPassword=? WHERE email=?";
+        $stmt_userinfo = $conn->prepare($update_query_userinfo);
+        $stmt_userinfo->bind_param("sss", $hashed_password, $hashed_password, $email);
+        $update_result_userinfo = $stmt_userinfo->execute();
 
-        // Perform the update and check if it was successful
-        if ($update_result) {
+        // Update the password in the rented table using prepared statement
+        $update_query_rented = "UPDATE rented SET password=?, cPassword=? WHERE email=?";
+        $stmt_rented = $conn->prepare($update_query_rented);
+        $stmt_rented->bind_param("sss", $hashed_password, $hashed_password, $email);
+        $update_result_rented = $stmt_rented->execute();
+
+        // Perform the updates and check if they were successful
+        if ($update_result_userinfo && $update_result_rented) {
             // Set the success message
             $successMessage = "Password reset successfully!";
 
@@ -73,9 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && is
         }
     }
 }
-
 ?>
-
+<title>Reset Password</title>
 <div class="container mt-4">
     <h2>Reset your password here</h2>
 
