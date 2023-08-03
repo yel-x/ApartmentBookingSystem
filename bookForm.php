@@ -90,13 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Validate addons checkboxes
-    $selectedAddons = isset($_POST['addons']) ? $_POST['addons'] : array();
-    // Check if at least one checkbox is selected
-    if (empty($selectedAddons)) {
-        // If no checkbox is selected, set an error message
-        $errors['addons'] = 'Please select at least one addon.';
-    }
     // Validate terms and conditions checkbox
     $termsChecked = isset($_POST['terms']) && $_POST['terms'] === '1';
     if (!$termsChecked) {
