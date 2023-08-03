@@ -33,47 +33,61 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $emailError = 'Invalid email format.';
     }
+
     // Validate profile picture
     if ($_FILES['pfPicture']['error'] === UPLOAD_ERR_OK) {
+        $maxFileSize = 20 * 1024 * 1024; // 20MB in bytes
         $uploadDir = "uploads/";
         $uploadFile = $uploadDir . basename($_FILES['pfPicture']['name']);
 
-        if (move_uploaded_file($_FILES['pfPicture']['tmp_name'], $uploadFile)) {
-            $newPicture = $uploadFile;
-            var_dump($newPicture);
-            // Retrieve the old profile picture path for the user from the database
-            $sql = "SELECT pfPicture FROM userInfo WHERE id = $userId";
-            $result = mysqli_query($conn, $sql);
+        // Check if the uploaded file is an image
+        $imageFileType = strtolower(pathinfo($uploadFile, PATHINFO_EXTENSION));
+        $allowedImageTypes = array("jpg", "jpeg", "png", "gif");
+        if (!in_array($imageFileType, $allowedImageTypes)) {
+            $errorMessage = "Only JPG, JPEG, PNG, and GIF files are allowed.";
+        } elseif ($_FILES['pfPicture']['size'] > $maxFileSize) {
+            $errorMessage = "File size exceeds the maximum allowed (20MB).";
+        } else {
+            if (move_uploaded_file($_FILES['pfPicture']['tmp_name'], $uploadFile)) {
+                $newPicture = $uploadFile;
+                var_dump($newPicture);
 
-            if ($result && mysqli_num_rows($result) > 0) {
-                $row = mysqli_fetch_assoc($result);
-                $oldPicture = $row['pfPicture'];
+                // Retrieve the old profile picture path for the user from the database
+                $sql = "SELECT pfPicture FROM userInfo WHERE id = $userId";
+                $result = mysqli_query($conn, $sql);
 
-                // Update the profile picture path in the userInfo table
-                $updateSql = "UPDATE userInfo SET pfPicture = '$newPicture' WHERE id = $userId";
-                $updateResult = mysqli_query($conn, $updateSql);
+                if ($result && mysqli_num_rows($result) > 0) {
+                    $row = mysqli_fetch_assoc($result);
+                    $oldPicture = $row['pfPicture'];
 
-                if ($updateResult) {
-                    // Delete the old picture file
-                    if ($oldPicture !== "path/to/old/picture.jpg") {
-                        unlink($oldPicture);
+                    // Update the profile picture path in the userInfo table
+                    $updateSql = "UPDATE userInfo SET pfPicture = '$newPicture' WHERE id = $userId";
+                    $updateResult = mysqli_query($conn, $updateSql);
+
+                    if ($updateResult) {
+                        // Delete the old picture file
+                        if ($oldPicture !== "path/to/old/picture.jpg") {
+                            unlink($oldPicture);
+                        }
+                    } else {
+                        $errorMessage = "An error occurred while updating the profile picture in the userInfo table.";
+                        error_log("Query Error: " . mysqli_error($conn));
                     }
                 } else {
-                    $errorMessage = "An error occurred while updating the profile picture in the userInfo table.";
+                    // Initialize $oldPicture with some default value if profile picture update is not performed
+                    $oldPicture = "path/to/old/picture.jpg";
+                }
+
+                // Now update the profile picture path in the rented table
+                $sql1 = "UPDATE rented SET pfPicture = '$newPicture' WHERE id = $userId";
+                $updateResult1 = mysqli_query($conn, $sql1);
+
+                if (!$updateResult1) {
+                    $errorMessage .= " An error occurred while updating the profile picture in the rented table.";
                     error_log("Query Error: " . mysqli_error($conn));
                 }
             } else {
-                // Initialize $oldPicture with some default value if profile picture update is not performed
-                $oldPicture = "path/to/old/picture.jpg";
-            }
-
-            // Now update the profile picture path in the rented table
-            $sql1 = "UPDATE rented SET pfPicture = '$newPicture' WHERE id = $userId";
-            $updateResult1 = mysqli_query($conn, $sql1);
-
-            if (!$updateResult1) {
-                $errorMessage .= " An error occurred while updating the profile picture in the rented table.";
-                error_log("Query Error: " . mysqli_error($conn));
+                $errorMessage = "An error occurred while uploading the profile picture.";
             }
         }
     }
@@ -181,9 +195,15 @@ require 'components/navbar.php';
             <label for="formFile" class="form-label">Upload your picture</label>
             <input class="form-control <?php if (!empty($pfPictureError))
                 echo 'is-invalid'; ?>" type="file" id="pfPicture" name="pfPicture">
+            <small class="text-muted">*Only picture 20mb and below is accepted</small>
             <?php if (!empty($pfPictureError)): ?>
                 <div class="invalid-feedback">
                     <?php echo $pfPictureError; ?>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($errorMessage)): ?>
+                <div class="invalid-feedback">
+                    <?php echo $errorMessage; ?>
                 </div>
             <?php endif; ?>
         </div>

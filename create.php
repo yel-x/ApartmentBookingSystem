@@ -35,18 +35,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $emailError = "Email already exists.";
   }
 
+  // Maximum allowed file size (20MB in bytes)
+  $maxFileSize = 20 * 1024 * 1024; // 20MB
   // Validate profile picture
-  if ($_FILES['pfPicture']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = "uploads/"; // Directory to store uploaded images
-    $uploadFile = $uploadDir . basename($_FILES['pfPicture']['name']);
+  if (isset($_FILES['pfPicture']) && $_FILES['pfPicture']['error'] === UPLOAD_ERR_OK) {
+    // Check if a file was uploaded and its size is within the limit
+    if ($_FILES['pfPicture']['size'] > 0 && $_FILES['pfPicture']['size'] <= $maxFileSize) {
+      // Check if the uploaded file is an image (you can add more allowed image types as needed)
+      $allowedImageTypes = array(IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF);
+      $detectedFileType = exif_imagetype($_FILES['pfPicture']['tmp_name']);
+      if (in_array($detectedFileType, $allowedImageTypes)) {
+        $uploadDir = "uploads/"; // Directory to store uploaded images
+        $uploadFile = $uploadDir . basename($_FILES['pfPicture']['name']);
 
-    // Move the uploaded file to the specified directory
-    if (move_uploaded_file($_FILES['pfPicture']['tmp_name'], $uploadFile)) {
-      $pfPicture = $uploadFile;
+        // Move the uploaded file to the specified directory
+        if (move_uploaded_file($_FILES['pfPicture']['tmp_name'], $uploadFile)) {
+          $pfPicture = $uploadFile;
+
+          // Store the uploaded file name in a session (you can also use cookies)
+          $_SESSION['uploaded_pfPicture'] = $_FILES['pfPicture']['name'];
+        } else {
+          $pfPictureError = "Error moving the uploaded file.";
+        }
+      } else {
+        $pfPictureError = "Only image files (JPEG, PNG, GIF) are allowed.";
+      }
+    } else {
+      if ($_FILES['pfPicture']['size'] === 0) {
+        $pfPictureError = "There's no profile picture.";
+      } elseif ($_FILES['pfPicture']['size'] > $maxFileSize) {
+        $pfPictureError = "The file size exceeds the maximum allowed size (20MB).";
+      } else {
+        $pfPictureError = "Please upload a valid picture.";
+      }
     }
-  } else {
-    $pfPictureError = "There's no profile picture.";
+  } elseif (isset($_FILES['pfPicture']) && $_FILES['pfPicture']['error'] !== UPLOAD_ERR_NO_FILE) {
+    $pfPictureError = "Error uploading the profile picture.";
   }
+
 
   // Validate password
   if (strlen($password) < 12) {
@@ -135,6 +161,7 @@ require 'components/navbar.php';
                 <label for="formFile" class="form-label">Upload your picture</label>
                 <input class="form-control <?php if (!empty($pfPictureError))
                   echo 'is-invalid'; ?>" type="file" id="pfPicture" name="pfPicture">
+                <small class="text-muted">*Only picture 20mb and below is accepted</small>
                 <?php if (!empty($pfPictureError)): ?>
                   <div class="invalid-feedback">
                     <?php echo $pfPictureError; ?>
