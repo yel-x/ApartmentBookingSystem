@@ -3,7 +3,8 @@ require 'components/retrieve.php';
 require 'components/retrieveRooms.php';
 require 'components/retrieveAddsOn.php';
 require 'components/layout.php';
-
+require 'components/retrieveReviews.php';
+session_start();
 // Assuming $roomNumber contains the room number for each iteration
 $roomNumber = 1; // Replace this with the actual room number
 
@@ -26,7 +27,18 @@ $evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
 </head>
 
 <body class="bg-body-secondary">
-  <?php require 'components/navbar.php'; ?>
+  <?php require 'components/navbar.php';
+
+  if (isset($_SESSION['successMessage'])) {
+    $successMessage = $_SESSION['successMessage'];
+    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>' . $successMessage . '</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>';
+    unset($_SESSION['successMessage']);
+  }
+  ?>
+
   <!-- carousel features -->
   <div class="container pt-3">
     <div class="row">
@@ -196,120 +208,53 @@ $evenClass = $roomNumber % 2 === 0 ? 'flex-row-reverse' : '';
         pariatur velit expedita ullam provident doloremque voluptate assumenda
         accusamus perspiciatis?
       </p>
-      <div class="card mx-lg-5 mx-3 mt-3" style="width: auto">
-        <div class="card-body">
-          <div class="d-flex">
-            <h5 class="card-title pe-3">Jose Rizal</h5>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-          </div>
+      <div>
+        <?php
+        // Fetch reviews from the database
+        $reviewsQuery = "SELECT fName, lName, star, content FROM reviews";
+        $reviewsResult = $conn->query($reviewsQuery);
 
-          <p class="card-text">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-            Distinctio impedit, est consectetur doloremque praesentium
-            voluptatum veritatis a. Veniam, recusandae est.
-          </p>
-        </div>
+        if ($reviewsResult->num_rows > 0) {
+          while ($row = $reviewsResult->fetch_assoc()) {
+            $fName = $row['fName'];
+            $lName = $row['lName'];
+            $star = $row['star'];
+            $content = $row['content'];
+            ?>
+            <div class="card mx-lg-5 mx-3 mt-3" style="width: auto">
+              <div class="card-body">
+                <div class="d-flex">
+                  <h5 class="card-title pe-3">
+                    <?php echo $fName . ' ' . $lName; ?>
+                  </h5>
+                  <?php
+                  // Display star rating based on the value of $star
+                  for ($i = 1; $i <= 5; $i++) {
+                    $starClass = ($i <= $star) ? 'bi-star-fill' : 'bi-star';
+                    ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                      class="bi <?php echo $starClass; ?> mt-1 me-1" viewBox="0 0 16 16">
+                      <path
+                        d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                    </svg>
+                    <?php
+                  }
+                  ?>
+                </div>
+                <p class="card-text">
+                  <?php echo $content; ?>
+                </p>
+              </div>
+            </div>
+            <?php
+          }
+        } else {
+          // Display a message if no reviews are found
+          echo "<p>No reviews found.</p>";
+        }
+        ?>
       </div>
-      <div class="card mx-lg-5 mx-3 mt-3" style="width: auto">
-        <div class="card-body">
-          <div class="d-flex">
-            <h5 class="card-title pe-3">Jose Rizal</h5>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-          </div>
 
-          <p class="card-text">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-            Distinctio impedit, est consectetur doloremque praesentium
-            voluptatum veritatis a. Veniam, recusandae est.
-          </p>
-        </div>
-      </div>
-      <div class="card mx-lg-5 mx-3 mt-3" style="width: auto">
-        <div class="card-body">
-          <div class="d-flex">
-            <h5 class="card-title pe-3">Jose Rizal</h5>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-              class="bi bi-star-fill mt-1 me-1" viewBox="0 0 16 16">
-              <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-            </svg>
-          </div>
-
-          <p class="card-text">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-            Distinctio impedit, est consectetur doloremque praesentium
-            voluptatum veritatis a. Veniam, recusandae est.
-          </p>
-        </div>
-      </div>
     </div>
   </section>
   <!-- footer -->

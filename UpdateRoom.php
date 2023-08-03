@@ -70,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php
 require 'components/navbar.php';
 ?>
+<title>Update Room</title>
 <h2>Update rooms</h2>
 <div class="container">
     <!-- Display error messages if any -->

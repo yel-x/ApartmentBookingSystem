@@ -1,4 +1,5 @@
 <?php
+session_start();
 require 'components/retrieve.php';
 require 'components/retrieveRenters.php';
 $fNameError = $lNameError = $emailError = $passwordError = $cPasswordError = $pfPictureError = '';
@@ -125,8 +126,11 @@ if (isset($_POST['submit']) || isset($_POST['userId'])) {
 
             // Redirect to success page if non-password fields were successfully updated
             if ($resultUserInfo && $resultRented) {
-                header("Location: account.php?userId=" . urlencode($userId) . "&successMessage=" . urlencode($successMessage));
-                exit; // Stop further processing
+                $_SESSION['successMessage'] = 'Succesfully updated your account';
+                // Redirect back to account.php with only the userId in the URL
+                $redirectUrl = 'account.php?userId=' . urlencode($userId);
+                header("Location: " . $redirectUrl);
+                exit;
             }
         }
     }

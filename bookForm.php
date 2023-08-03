@@ -3,6 +3,7 @@ ob_start(); // Start output buffering
 require 'components/retrieveRooms.php';
 require 'components/retrieveCopy.php';
 require 'components/retrieveAddsOn.php';
+require 'components/retrieveAppointment.php';
 // Initialize form data and errors
 $errors = array();
 $fName = $lName = $email = $date = $addOn = '';
@@ -31,9 +32,24 @@ function executeInsertStatement($conn, $fName, $lName, $email, $title, $date, $s
     // Execute the prepared statement to insert the data into the database
     $stmt->execute();
 }
-
-
 require 'components/navbar.php';
+
+// Function to check if the user has already booked the room
+function hasUserBookedRoom($conn, $email, $title)
+{
+    // Initialize $count to 0
+    $count = 0;
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM appointment WHERE email = ? AND title = ?");
+    $stmt->bind_param('ss', $email, $title);
+    $stmt->execute();
+    $stmt->bind_result($count);
+
+    $stmt->fetch();
+    $stmt->close();
+
+    return ($count > 0);
+}
+
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -65,7 +81,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validate addons checkboxes
     $selectedAddons = isset($_POST['addons']) ? $_POST['addons'] : array();
-
+    // Check if at least one checkbox is selected
+    if (empty($selectedAddons)) {
+        // If no checkbox is selected, set an error message
+        $errors['addons'] = 'Please select at least one addon.';
+    }
     // Validate terms and conditions checkbox
     $termsChecked = isset($_POST['terms']) && $_POST['terms'] === '1';
     if (!$termsChecked) {
@@ -76,30 +96,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         // Get the rID from the URL using $_GET
         $rID = $_GET['rID'];
-
-        // Placeholder function to retrieve the title based on the rID
-        function getTitleForRoom($roomId, $roomsData)
-        {
-            foreach ($roomsData as $room) {
-                if ($room['rID'] === $roomId) {
-                    return $room['title'];
+        if (hasUserBookedRoom($conn, $email, $title)) {
+            $errors['general'] = 'You have already booked a room.';
+        } else {
+            // Placeholder function to retrieve the title based on the rID
+            function getTitleForRoom($roomId, $roomsData)
+            {
+                foreach ($roomsData as $room) {
+                    if ($room['rID'] === $roomId) {
+                        return $room['title'];
+                    }
                 }
+                // Return default title if the rID doesn't match any rooms
+                return "Default Title";
             }
-            // Return default title if the rID doesn't match any rooms
-            return "Default Title";
+
+            // Call the function to retrieve the title for the given rID
+            $title = getTitleForRoom($rID, $rooms);
+            // Convert the selected addons array to a comma-separated string
+            $selectedAddonsStr = implode(", ", $selectedAddons);
+
+            // Call the modified function to execute the SQL INSERT statement
+            executeInsertStatement($conn, $fName, $lName, $email, $title, $date, $selectedAddonsStr);
+
+            // Set a success message in a session variable
+            $_SESSION['successMessage'] = 'Data successfully inserted.';
+            // Redirect to the index page after successful insertion
+            header("Location: index.php?userId=" . urlencode($userId));
+            exit;
         }
-
-        // Call the function to retrieve the title for the given rID
-        $title = getTitleForRoom($rID, $rooms);
-        // Convert the selected addons array to a comma-separated string
-        $selectedAddonsStr = implode(", ", $selectedAddons);
-
-        // Call the modified function to execute the SQL INSERT statement
-        executeInsertStatement($conn, $fName, $lName, $email, $title, $date, $selectedAddonsStr);
-
-        // Redirect to the index page after successful insertion
-        header("Location: index.php?userId=" . urlencode($userId));
-        exit;
     }
 }
 ob_end_flush();
@@ -109,6 +134,11 @@ ob_end_flush();
 </head>
 <div class="container">
     <form class="row g-3" method="POST">
+        <?php if (isset($errors['general'])): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo $errors['general']; ?>
+            </div>
+        <?php endif; ?>
         <!-- First name field -->
         <div class="col-md-4">
             <label for="validationServer01" class="form-label">First name</label>
@@ -211,7 +241,16 @@ ob_end_flush();
         <!-- Checkboxes for addsons -->
         <div class="col-md-4">
             <label class="form-label">Select Addons</label><br>
-            <?php foreach ($addsons as $addson): ?>
+            <?php
+            // Filter the $addsons array to keep only those with "In-Stock" or "Available" availability
+            $filteredAddsons = array_filter($addsons, function ($addson) {
+                $availability = $addson['availability'];
+                return $availability === 'In-Stock' || $availability === 'Available';
+            });
+
+            // Display the filtered addsons using the $filteredAddsons array
+            foreach ($filteredAddsons as $addson):
+                ?>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="addons[]" id="addon-<?php echo $addson['id']; ?>"
                         value="<?php echo $addson['title']; ?>">

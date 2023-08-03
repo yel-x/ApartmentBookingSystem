@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 02, 2023 at 08:13 PM
+-- Generation Time: Aug 03, 2023 at 05:58 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -45,7 +45,7 @@ INSERT INTO `addson` (`id`, `title`, `picture`, `description`, `price`, `availab
 (15, 'Fan', 'uploads/kaveh-kit-genshin-impact.jpeg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 666, 'In-Stock'),
 (16, 'Pool', 'uploads/GenshinImpact_YaeMikoWallpaper4.jpg', 'Lorem 1234', 222, 'Available'),
 (18, 'AC', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1 .jpeg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 444, 'Available'),
-(19, 'TR', 'uploads/Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'lorem 12345678', 555, 'Available'),
+(19, 'TR', 'uploads/Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'lorem 12345678', 555, 'Sold'),
 (21, 'AC', 'uploads/Yae-Miko-birthday-art-2022-genshinimpact.jpg', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt facilisis pretium. Morbi vel ipsum porttitor, tempus purus consectetur, maximus mauris. Vestibulum blandit augue ac orci scelerisque tincidunt. Vestibulum vel metus ut nisi egestas placerat. Nulla posuere rutrum bibendum. Integer.', 900, 'Available');
 
 -- --------------------------------------------------------
@@ -64,6 +64,13 @@ CREATE TABLE `appointment` (
   `addOn` varchar(255) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `appointment`
+--
+
+INSERT INTO `appointment` (`aID`, `title`, `fName`, `lName`, `email`, `date`, `addOn`, `timestamp`) VALUES
+(369, 'Room 202', 'Raiden', 'Shogun', 'miko@gmail.com', '2023-08-19', 'Frig, Fan', '2023-08-03 03:05:12');
 
 --
 -- Triggers `appointment`
@@ -110,13 +117,6 @@ CREATE TABLE `ongoing` (
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `ongoing`
---
-
-INSERT INTO `ongoing` (`id`, `fName`, `lName`, `email`, `title`, `addOn`, `date`, `timestamp`) VALUES
-(361, 'Raiden', 'Shogun', 'miko@gmail.com', 'Room 777', '', '2023-08-11', '2023-08-02 18:12:13');
-
 -- --------------------------------------------------------
 
 --
@@ -145,6 +145,27 @@ CREATE TABLE `rented` (
 
 INSERT INTO `rented` (`id`, `title`, `fName`, `lName`, `pfPicture`, `email`, `password`, `cPassword`, `addOn`, `timestamp`, `timeRented`, `advancePayment`, `dateMoved`) VALUES
 (28, 'Room 202', 'AlHaitham', 'Kaveh', 'uploads/alhaitham-birthday-art-genshinimpact.jpg', 'al@gmail.com', '$2y$10$ICFiBT5y21/i.lACaCqg7eyd4q4Pi6thcVB.EN4zQJt35WXECCgAG', '$2y$10$ICFiBT5y21/i.lACaCqg7eyd4q4Pi6thcVB.EN4zQJt35WXECCgAG', 'Fan, Pool, AC', '2023-08-02 17:47:41', '2023-08-02 15:10:52', 85288, '2023-08-03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `id` int(11) NOT NULL,
+  `fName` varchar(255) NOT NULL,
+  `lName` varchar(255) NOT NULL,
+  `star` varchar(255) NOT NULL,
+  `content` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reviews`
+--
+
+INSERT INTO `reviews` (`id`, `fName`, `lName`, `star`, `content`) VALUES
+(18, 'Raiden', 'Shogun', '3', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean nulla leo, elementum ac purus eu, mollis interdum diam. Praesent quis.');
 
 -- --------------------------------------------------------
 
@@ -211,7 +232,7 @@ CREATE TABLE `userinfo` (
 
 INSERT INTO `userinfo` (`id`, `fName`, `lName`, `pfPicture`, `email`, `password`, `cPassword`, `timestamp`, `rentedtime`) VALUES
 (1, 'admin', '123', '', 'admin@gmail.com', '$2y$10$FTeuA2tH76ozYNpE4DJtl.YODjxeG8T.jokxocpY7.aGnD/1wX2G2', '$2y$10$FTeuA2tH76ozYNpE4DJtl.YODjxeG8T.jokxocpY7.aGnD/1wX2G2', '2023-08-02 08:42:18', NULL),
-(90, 'Raiden', 'Shogun', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1 .jpeg', 'miko@gmail.com', '$2y$10$OOTOxdFiLWUs65bgsQKbz.e7QAd2Ze5.obWmVIiXj2bRRS.QyYAdO', '$2y$10$OOTOxdFiLWUs65bgsQKbz.e7QAd2Ze5.obWmVIiXj2bRRS.QyYAdO', '2023-08-02 18:03:28', NULL);
+(90, 'Raiden', 'Shogun', 'uploads/GenshinImpact_YaeMikoWallpaper4.jpg', 'miko@gmail.com', '$2y$10$amwGrkRk8IAcU3Kr2AugUuw0BYNmSsNbMtUQPbWDB0xdsIPCc70S2', '$2y$10$amwGrkRk8IAcU3Kr2AugUuw0BYNmSsNbMtUQPbWDB0xdsIPCc70S2', '2023-08-03 03:39:55', NULL);
 
 --
 -- Triggers `userinfo`
@@ -284,7 +305,7 @@ CREATE TABLE `userinfocopy` (
 --
 
 INSERT INTO `userinfocopy` (`id`, `fName`, `lName`, `email`, `password`, `pfPicture`, `cPassword`, `timestamp`) VALUES
-(31, 'Raiden', 'Shogun', 'miko@gmail.com', '$2y$10$OOTOxdFiLWUs65bgsQKbz.e7QAd2Ze5.obWmVIiXj2bRRS.QyYAdO', 'uploads/official-raiden-shogun-birthday-art-from-genshin-twitter-v0-b364b3byga8b1 .jpeg', '$2y$10$OOTOxdFiLWUs65bgsQKbz.e7QAd2Ze5.obWmVIiXj2bRRS.QyYAdO', '2023-08-02 18:03:28');
+(31, 'Raiden', 'Shogun', 'miko@gmail.com', '$2y$10$amwGrkRk8IAcU3Kr2AugUuw0BYNmSsNbMtUQPbWDB0xdsIPCc70S2', 'uploads/GenshinImpact_YaeMikoWallpaper4.jpg', '$2y$10$amwGrkRk8IAcU3Kr2AugUuw0BYNmSsNbMtUQPbWDB0xdsIPCc70S2', '2023-08-03 03:47:38');
 
 --
 -- Indexes for dumped tables
@@ -318,6 +339,12 @@ ALTER TABLE `ongoing`
 -- Indexes for table `rented`
 --
 ALTER TABLE `rented`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `reviews`
+--
+ALTER TABLE `reviews`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -358,13 +385,13 @@ ALTER TABLE `addson`
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `aID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=362;
+  MODIFY `aID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=370;
 
 --
 -- AUTO_INCREMENT for table `complete`
 --
 ALTER TABLE `complete`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=361;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=362;
 
 --
 -- AUTO_INCREMENT for table `ongoing`
@@ -379,6 +406,12 @@ ALTER TABLE `rented`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
+-- AUTO_INCREMENT for table `reviews`
+--
+ALTER TABLE `reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
 -- AUTO_INCREMENT for table `rooms`
 --
 ALTER TABLE `rooms`
@@ -388,7 +421,7 @@ ALTER TABLE `rooms`
 -- AUTO_INCREMENT for table `toastnotif`
 --
 ALTER TABLE `toastnotif`
-  MODIFY `toastID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=285;
+  MODIFY `toastID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=293;
 
 --
 -- AUTO_INCREMENT for table `userinfo`

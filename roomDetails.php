@@ -20,6 +20,7 @@ if (isset($_GET['rID'])) {
         $title = $selectedRoom['title'];
         $description = $selectedRoom['description'];
         $picture = $selectedRoom['picture'];
+        $price = $selectedRoom['price'];
 
         // Split the $picture string into an array of URLs using line breaks as delimiters
         $pictureUrls = ($picture !== '') ? explode("\n", $picture) : [];
@@ -103,6 +104,11 @@ $pictureUrls = ($picture !== '') ? array_filter(explode("\n", $picture), 'trim')
                     <div class="col">
                         <p>
                             <?php echo $description; ?>
+                        </p>
+                    </div>
+                    <div class="col">
+                        <p>
+                            <?php echo $price; ?>
                         </p>
                     </div>
                 </div>

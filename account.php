@@ -1,4 +1,5 @@
 <?php
+session_start();
 require 'components/retrieve.php';
 require 'components/retrieveRenters.php';
 require 'components/layout.php';
@@ -60,6 +61,7 @@ if ($daysRemaining <= 0) {
     echo "<script>$(document).ready(function(){ $('#paymentToast').toast('show'); });</script>";
   }
 }
+
 ?>
 <style>
   .danger-counter,
@@ -73,11 +75,14 @@ if ($daysRemaining <= 0) {
 <body>
   <?php require 'components/navbar.php'; ?>
   <div class="container-md">
+
     <?php
-    if (isset($_GET['successMessage'])) {
-      $successMessage = $_GET['successMessage'];
+    // Check if there is a success message in the session
+    if (isset($_SESSION['successMessage'])) {
+      $successMessage = $_SESSION['successMessage'];
+      unset($_SESSION['successMessage']); // Clear the session variable to show the message only once
       echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
-              <strong>Success updating your account!</strong> ' . $successMessage . '
+              <strong>' . $successMessage . ' </strong>
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>';
     }
@@ -146,9 +151,10 @@ if ($daysRemaining <= 0) {
           Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae ex
           quos libero non quasi blanditiis veniam tempore. Eligendi, hic enim.
         </p>
-        <button class="btn btn-outline-danger w-50 mt-5 rounded-pill d-none d-md-block">
+        <a href="reviews.php?userId=<?php echo $userId; ?>"
+          class="btn btn-outline-danger w-50 mt-5 rounded-pill d-none d-md-block">
           Leave us a Review!
-        </button>
+        </a>
       </div>
 
       <!-- Picture on the right -->
