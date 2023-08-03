@@ -28,7 +28,7 @@ if (empty($appointment)) {
     $counter = ($currentPage - 1) * $itemsPerPage + 1;
     ?>
 
-    <form action="admin-dashboard.php" method="post">
+    <form action="admin-dashboard.php" method="post" onsubmit="return validateForm()">
         <table class="table table-striped table-hover table-bordered shadow rounded-5" id="userTable">
             <thead>
                 <tr>
@@ -114,6 +114,28 @@ if (empty($appointment)) {
     </form>
 
     <script>
+        function validateForm() {
+            // Get all the checkboxes with the name "selectedRow[]"
+            const checkboxes = document.querySelectorAll('input[name="selectedRow[]"]');
+
+            // Check if at least one checkbox is checked
+            let isChecked = false;
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.checked) {
+                    isChecked = true;
+                    return; // Exit the loop if at least one checkbox is checked
+                }
+            });
+
+            // Show an error message if no checkbox is checked
+            if (!isChecked) {
+                alert('Please select at least one row.');
+                return false; // Prevent the form from submitting
+            }
+
+            // Allow the form to submit if at least one checkbox is checked
+            return true;
+        }
         function toggleCheckboxes() {
             const checkboxes = document.querySelectorAll('input[name="selectedRow[]"]');
             const selectAllCheckbox = document.getElementById('selectAllCheckbox');

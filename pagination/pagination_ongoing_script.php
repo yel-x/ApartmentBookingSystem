@@ -35,7 +35,7 @@ if (empty($ongoingUser)) {
 <?php if (empty($paginatedData)): ?>
     <p>No data available.</p>
 <?php else: ?>
-    <form action="admin-dashboard.php" method="post">
+    <form action="admin-dashboard.php" method="post" onsubmit="return validateForm()">
         <table class="table table-striped table-hover table-bordered shadow rounded-5">
             <thead>
                 <tr>
@@ -48,7 +48,6 @@ if (empty($ongoingUser)) {
                     <th>Email</th>
                     <th>Room Name</th>
                     <th>Schedule</th>
-                    <th>Operation</th>
                 </tr>
             </thead>
             <tbody>
@@ -115,6 +114,29 @@ if (empty($ongoingUser)) {
         </nav>
     </form>
     <script>
+        function validateForm() {
+            // Get all the checkboxes with the name "selectedRowOngoing[]"
+            const checkboxes = document.querySelectorAll('input[name="selectedRowOngoing[]"]');
+
+            // Check if at least one checkbox is checked
+            let isChecked = false;
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.checked) {
+                    isChecked = true;
+                    return; // Exit the loop if at least one checkbox is checked
+                }
+            });
+
+            // Show an error message if no checkbox is checked
+            if (!isChecked) {
+                alert('Please select at least one row.');
+                return false; // Prevent the form from submitting
+            }
+
+            // Allow the form to submit if at least one checkbox is checked
+            return true;
+        }
+
         function toggleCheckboxesOngoing() {
             const checkboxes = document.querySelectorAll('input[name="selectedRowOngoing[]"]');
             const selectAllCheckbox = document.getElementById('selectAllCheckboxOngoing');
