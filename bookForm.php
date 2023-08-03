@@ -5,11 +5,12 @@ require 'components/retrieveRooms.php';
 require 'components/retrieveCopy.php';
 require 'components/retrieveAddsOn.php';
 require 'components/retrieveAppointment.php';
+require 'components/retrieve.php';
 // Initialize form data and errors
 $errors = array();
 $fName = $lName = $email = $date = $addOn = '';
 $fNameError = $lNameError = $emailError = $dateError = $addOnError = '';
-
+$selectedAddons = array();
 // Check if userId exists in the URL
 if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
@@ -38,17 +39,27 @@ require 'components/navbar.php';
 // Function to check if the user has already booked the room
 function hasUserBookedRoom($conn, $email, $title)
 {
-    // Initialize $count to 0
+    // Initialize to 0
     $count = 0;
+    $rentedCount = 0;
+    // Check if the email exists in the appointment table
     $stmt = $conn->prepare("SELECT COUNT(*) FROM appointment WHERE email = ? AND title = ?");
     $stmt->bind_param('ss', $email, $title);
     $stmt->execute();
     $stmt->bind_result($count);
-
     $stmt->fetch();
     $stmt->close();
 
-    return ($count > 0);
+    // Check if the email exists in the rented table
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM rented WHERE email = ? AND title = ?");
+    $stmt->bind_param('ss', $email, $title);
+    $stmt->execute();
+    $stmt->bind_result($rentedCount);
+    $stmt->fetch();
+    $stmt->close();
+
+    // If email exists in either appointment or rented table, return true
+    return ($count > 0 || $rentedCount > 0);
 }
 
 // Check if the form is submitted
@@ -88,6 +99,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($selectedTimestamp < $currentTimestamp) {
             $errors['date'] = 'You cannot select a past date.';
         }
+    }
+    // Validate add-ons (if provided)
+    if (isset($_POST['addons'])) {
+        $selectedAddons = $_POST['addons'];
     }
 
     // Validate terms and conditions checkbox
