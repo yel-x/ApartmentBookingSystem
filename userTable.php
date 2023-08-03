@@ -3,6 +3,17 @@ require 'components/layout.php';
 require 'components/retrieveUserInfo.php';
 require 'components/retrieveAppointment.php';
 require 'components/retrieveCopy.php';
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Check if the form was submitted
+    $title = $_POST["roomTitle"];
+    $addson = $_POST["roomAddson"];
+
+    if (empty($title) || empty($addson)) {
+        // If either title or addson is empty, show an error message
+        echo "<p style='color: red;'>Please enter the title and addson before moving.</p>";
+    }
+}
 ?>
 
 <h1>User Table</h1>
@@ -75,7 +86,6 @@ require 'components/retrieveCopy.php';
                             <button type="button" class="btn btn-danger rounded-pill" data-bs-toggle="modal"
                                 data-bs-target="#moveConfirmationModal<?php echo $user['id']; ?>">Rented</button>
                         </form>
-
                         <div class="modal fade" id="moveConfirmationModal<?php echo $user['id']; ?>" tabindex="-1"
                             aria-labelledby="moveConfirmationModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -94,29 +104,46 @@ require 'components/retrieveCopy.php';
                                                 <label for="advancePay">Advance Payment?</label>
                                                 <input type="number" class="form-control" name="advancePay" id="advancePay"
                                                     placeholder="Enter advance payment">
+                                                <?php if (isset($_SESSION['formErrors']['advancePay'])) { ?>
+                                                    <p class="text-danger">
+                                                        <?php echo $_SESSION['formErrors']['advancePay']; ?>
+                                                    </p>
+                                                <?php } ?>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="dateToMove">When will they be moved?</label>
                                                 <input type="date" class="form-control" name="dateToMove" id="dateToMove"
                                                     placeholder="Enter date to move">
+                                                <?php if (isset($_SESSION['formErrors']['dateToMove'])) { ?>
+                                                    <p class="text-danger">
+                                                        <?php echo $_SESSION['formErrors']['dateToMove']; ?>
+                                                    </p>
+                                                <?php } ?>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <h4 for="rentAndExtra">Information</h4>
-                                                <p>Room Title:
-                                                    <?php echo $title; ?>
-                                                </p>
-                                                <p>Ammenity(ies):
-                                                    <?php echo $addOn; ?>
-                                                </p>
+                                                <?php if (!empty($title) && !empty($addOn)) { ?>
+                                                    <p>Room Title:
+                                                        <?php echo $title; ?>
+                                                    </p>
+                                                    <p>Ammenity(ies):
+                                                        <?php echo $addOn; ?>
+                                                    </p>
+                                                <?php } else { ?>
+                                                    <p>No title or addson available</p>
+                                                <?php } ?>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
                                                     data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-danger"
-                                                    name="moveFromUserTable">Move</button>
+                                                <?php if (!empty($title) && !empty($addOn)) { ?>
+                                                    <button type="submit" class="btn btn-danger"
+                                                        name="moveFromUserTable">Move</button>
+                                                <?php } ?>
                                             </div>
                                         </form>
                                     </div>
+
                                 </div>
                             </div>
                         </div>

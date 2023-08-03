@@ -9,6 +9,17 @@ if (isset($_POST['moveFromUserTable']) && $_POST['operation'] === "move") {
     $advancePayment = $_POST['advancePay'];
     $dateToMove = $_POST['dateToMove'];
 
+    // Server-side validation
+    $errors = array();
+
+    if (empty($advancePayment)) {
+        $errors['advancePay'] = "Advance Payment field is required.";
+    }
+
+    if (empty($dateToMove)) {
+        $errors['dateToMove'] = "Date to Move field is required.";
+    }
+
     // Find the user in the $userinfo array using the email
     $user = null;
     foreach ($userinfo as $index => $u) {
@@ -18,7 +29,15 @@ if (isset($_POST['moveFromUserTable']) && $_POST['operation'] === "move") {
             break;
         }
     }
+    if (!empty($errors)) {
+        // If there are errors, set an error message and store the errors in a session variable.
+        $_SESSION['errorMessage'] = "Please type a valid input.";
+        $_SESSION['formErrors'] = $errors;
 
+        // Redirect back to the form page
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit();
+    }
     if ($user) {
         // Insert user data into the 'rented' table
         $insertQuery = "INSERT INTO rented (fName, lName, email, password, cPassword, pfPicture, timestamp, advancePayment, dateMoved)
@@ -34,7 +53,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         );
         if ($stmt1->execute()) {
             // Success message
-            $_SESSION['successMessage'] = "Account is a renter now";
+            $_SESSION['successMessage'] = "";
 
             // Step 5: Retrieve data from 'appointment' table
             $selectAppointmentQuery = "SELECT title, addOn, date, timestamp FROM appointment WHERE email = ?";

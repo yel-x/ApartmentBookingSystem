@@ -138,9 +138,18 @@ $trendsDataJson = json_encode($trendsData);
     }
 </style>
 <title>Dashboard</title>
-
 <?php
 
+if (isset($_SESSION['errorMessage'])) {
+    $errorMessage = $_SESSION['errorMessage'];
+    echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>' . $errorMessage . '</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>';
+    unset($_SESSION['errorMessage']);
+}
+?>
+<?php
 if (isset($_SESSION['successMessage'])) {
     $successMessage = $_SESSION['successMessage'];
     echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
