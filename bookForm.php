@@ -1,5 +1,6 @@
 <?php
 ob_start(); // Start output buffering
+require 'components/layout.php';
 require 'components/retrieveRooms.php';
 require 'components/retrieveCopy.php';
 require 'components/retrieveAddsOn.php';
@@ -77,6 +78,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = validateInput($_POST['date']);
     if (empty($date) || $date === '0') {
         $errors['date'] = 'Please select a valid date.';
+    } else {
+        // Convert the selected date to a timestamp
+        $selectedTimestamp = strtotime($date);
+        // Get the current timestamp
+        $currentTimestamp = time();
+
+        // Check if the selected date is in the past
+        if ($selectedTimestamp < $currentTimestamp) {
+            $errors['date'] = 'You cannot select a past date.';
+        }
     }
 
     // Validate addons checkboxes
@@ -133,7 +144,7 @@ ob_end_flush();
 <title>Book Appointment Form</title>
 </head>
 <div class="container">
-    <form class="row g-3" method="POST">
+    <form class="row m-3" method="POST">
         <?php if (isset($errors['general'])): ?>
             <div class="alert alert-danger" role="alert">
                 <?php echo $errors['general']; ?>
@@ -265,13 +276,13 @@ ob_end_flush();
                 </div>
             <?php endif; ?>
         </div>
-        <!-- Terms and conditions checkbox -->
+        <!-- Terms and conditions checkbox and trigger for the modal -->
         <div class="col-12">
             <div class="form-check">
                 <input class="form-check-input <?php echo isset($errors['terms']) ? 'is-invalid' : ''; ?>"
                     type="checkbox" value="1" id="invalidCheck3" name="terms" <?php echo isset($_POST['terms']) ? 'checked' : ''; ?>>
                 <label class="form-check-label" for="invalidCheck3">
-                    Agree to terms and conditions
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Agree to terms and conditions</a>
                 </label>
                 <?php if (isset($errors['terms'])): ?>
                     <div class="invalid-feedback">
@@ -280,9 +291,25 @@ ob_end_flush();
                 <?php endif; ?>
             </div>
         </div>
-
+        <!-- Bootstrap Modal for terms and conditions -->
+        <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="termsModal">Terms and Condition</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <?php require 'terms_modal_content.php'; ?>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Submit button -->
-        <div class="col-12">
+        <div class="col-12 mt-2">
             <button class="btn btn-primary" type="submit">Appoint</button>
         </div>
     </form>
