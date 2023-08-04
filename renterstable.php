@@ -58,6 +58,7 @@ if (isset($_POST['useAdvancePayment'])) {
                 <th>Last Name</th>
                 <th>Email</th>
                 <th>Due Date</th>
+                <th>Advance Payment Balance</th>
                 <th>Operation</th>
             </tr>
         </thead>
@@ -91,6 +92,9 @@ if (isset($_POST['useAdvancePayment'])) {
                     </td>
                     <td>
                         <?php echo $dueDate; ?>
+                    </td>
+                    <td>
+                        <?php echo $advancePayment; ?>
                     </td>
                     <td>
                         <form action="removeRented.php" method="post">
